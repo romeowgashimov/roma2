@@ -1,0 +1,17 @@
+[gd_scene format=3 uid="uid://c02s055khrmxa"]
+
+[ext_resource type="Script" uid="uid://bnvsm2x4by88y" path="res://Server/Logic/Core/EntryPoint.cs" id="1_eyuga"]
+[ext_resource type="Script" uid="uid://cd6kax76xvt1f" path="res://Shared/NetworkBridge.cs" id="1_gobsh"]
+[ext_resource type="Script" uid="uid://wpnhtadfadyb" path="res://Server/Logic/Network/Server.cs" id="2_cimub"]
+
+[node name="Main" type="Node" unique_id=369472024 node_paths=PackedStringArray("_networkBridge", "_server")]
+script = ExtResource("1_eyuga")
+_networkBridge = NodePath("NetworkBridge")
+_server = NodePath("Server")
+
+[node name="Server" type="Node" parent="." unique_id=82617968 node_paths=PackedStringArray("_networkBridge")]
+script = ExtResource("2_cimub")
+_networkBridge = NodePath("../NetworkBridge")
+
+[node name="NetworkBridge" type="Node" parent="." unique_id=221906756]
+script = ExtResource("1_gobsh")

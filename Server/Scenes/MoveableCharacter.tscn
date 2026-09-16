@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://cbxgtmqgj61nd"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_esjn7"]
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_oi2ki"]
+
+[node name="CharacterBody3D" type="CharacterBody3D" unique_id=86826339]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1184932176]
+shape = SubResource("CapsuleShape3D_esjn7")
+
+[node name="NavigationAgent3D" type="NavigationAgent3D" parent="." unique_id=489159102]
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=864633270]
+replication_config = SubResource("SceneReplicationConfig_oi2ki")
