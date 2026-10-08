@@ -1,0 +1,27 @@
+[gd_scene format=3 uid="uid://b505tciu05trq"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_wqvrr"]
+sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+ground_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+
+[sub_resource type="Sky" id="Sky_rwof1"]
+sky_material = SubResource("ProceduralSkyMaterial_wqvrr")
+
+[sub_resource type="Environment" id="Environment_rpmee"]
+background_mode = 2
+sky = SubResource("Sky_rwof1")
+glow_enabled = true
+
+[node name="GameWorld" type="Node2D" unique_id=1057989470]
+
+[node name="Presentation" type="Node2D" parent="." unique_id=872725914]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Presentation" unique_id=750328990]
+transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Presentation" unique_id=151327037]
+environment = SubResource("Environment_rpmee")
+
+[node name="Camera3D" type="Camera3D" parent="Presentation" unique_id=825276698]
+current = true

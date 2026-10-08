@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://yvks3kr6xpur"]
+
+[ext_resource type="Script" uid="uid://djxdsa2fnyabp" path="res://Client/Logic/Core/StartMenu.cs" id="1_7beu8"]
+
+[node name="StartMenu" type="Node2D" unique_id=752878561 node_paths=PackedStringArray("_button")]
+script = ExtResource("1_7beu8")
+_button = NodePath("Button")
+
+[node name="Button" type="Button" parent="." unique_id=126130521]
+offset_left = 471.0
+offset_top = 370.0
+offset_right = 655.0
+offset_bottom = 435.0
+theme_override_font_sizes/font_size = 32
+text = "Играть"
+
+[node name="Label" type="Label" parent="." unique_id=222297236]
+offset_left = 338.0
+offset_top = 135.0
+offset_right = 799.0
+offset_bottom = 300.0
+theme_override_font_sizes/font_size = 120
+text = "ROMA 2"

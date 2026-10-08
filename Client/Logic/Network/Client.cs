@@ -1,3 +1,4 @@
+using System;
 using Godot;
 using ROMA2.Shared;
 using static Godot.GD;
@@ -6,10 +7,12 @@ namespace ROMA2.Client.Logic.Network;
 
 public partial class Client : Node
 {
-    [Export] private string _gameWorldScenePath = "res://Client/Scenes/GameWorld.tscn";
+    [Export] private string _gameWorldScenePath = "res://Client/Scenes/game_world.tscn";
     [Export] private string _serverIp = "127.0.0.1";
     [Export] private int _serverPort = 7070;
     [Export] private NetworkBridge _networkBridge;
+    
+    public Action SuccessfulConnection;
 
     // Сделать очистку событий
     public void Init()
@@ -53,7 +56,7 @@ public partial class Client : Node
 
     private void OnApprovedJoin()
     {
-        PackedScene gameWorldScene = Load<PackedScene>(_gameWorldScenePath);
+        var gameWorldScene = Load<PackedScene>(_gameWorldScenePath);
 
         if (gameWorldScene == null)
         {
@@ -63,6 +66,8 @@ public partial class Client : Node
 
         Node gameWorldInstance = gameWorldScene.Instantiate();
 
-        AddChild(gameWorldInstance);
+        SuccessfulConnection?.Invoke();
+        
+        GetParent().AddChild(gameWorldInstance);
     }
 }

@@ -3,11 +3,13 @@
 [ext_resource type="Script" uid="uid://uew55u8pvi4s" path="res://Client/Logic/Core/EntryPoint.cs" id="1_ama40"]
 [ext_resource type="Script" uid="uid://cd6kax76xvt1f" path="res://Shared/NetworkBridge.cs" id="1_np6pa"]
 [ext_resource type="Script" uid="uid://denxajgad675e" path="res://Client/Logic/Network/Client.cs" id="1_swjw6"]
+[ext_resource type="PackedScene" uid="uid://yvks3kr6xpur" path="res://Client/Scenes/start_menu.tscn" id="4_qqe4x"]
 
-[node name="Main" type="Node" unique_id=2125129965 node_paths=PackedStringArray("_networkBridge", "_client")]
+[node name="Main" type="Node" unique_id=2125129965 node_paths=PackedStringArray("_bridge", "_client", "_startMenu")]
 script = ExtResource("1_ama40")
-_networkBridge = NodePath("NetworkBridge")
+_bridge = NodePath("NetworkBridge")
 _client = NodePath("Client")
+_startMenu = NodePath("StartMenu")
 
 [node name="Client" type="Node" parent="." unique_id=154863433 node_paths=PackedStringArray("_networkBridge")]
 script = ExtResource("1_swjw6")
@@ -15,3 +17,6 @@ _networkBridge = NodePath("../NetworkBridge")
 
 [node name="NetworkBridge" type="Node" parent="." unique_id=1806580572]
 script = ExtResource("1_np6pa")
+
+[node name="StartMenu" parent="." unique_id=752878561 node_paths=PackedStringArray("_client") instance=ExtResource("4_qqe4x")]
+_client = NodePath("../Client")
