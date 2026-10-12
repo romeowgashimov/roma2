@@ -1,5 +1,6 @@
 using Godot;
 using ROMA2.Shared;
+using ROMA2.Shared.Data;
 
 namespace ROMA2.Client.Logic.Core;
 
@@ -11,6 +12,8 @@ public partial class EntryPoint : Node
 
     public override void _Ready()
     {
+        CharactersConfig charConfig = new(false);
+        
         _client.Init();
         _startMenu.Init();
     }

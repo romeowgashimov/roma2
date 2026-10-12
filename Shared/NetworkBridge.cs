@@ -9,6 +9,8 @@ public partial class NetworkBridge : Node
     public event Action ApproveJoin;
     public event Action<long> SelectCharacter;
     public event Action<long, int> CharacterSelected;
+    public event Action<long, bool> CharacterSelectionCanceled;
+    public event Action<long, int> CharacterSelectionApproved;
 
     public override void _Notification(int what)
     {
@@ -43,5 +45,17 @@ public partial class NetworkBridge : Node
     {
         long senderId = Multiplayer.GetRemoteSenderId();
         CharacterSelected?.Invoke(senderId, characterId);
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    public void OnCharacterSelectionCanceled(long selectorPeer, bool characterTaken)
+    {
+        CharacterSelectionCanceled?.Invoke(selectorPeer, characterTaken);
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    public void OnCharacterSelectionApproved(long selectorPeer, int characterId)
+    {
+        CharacterSelectionApproved?.Invoke(selectorPeer, characterId);
     }
 }

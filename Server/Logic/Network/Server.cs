@@ -11,11 +11,11 @@ public partial class Server : Node
     [Export] private int _serverPort = 7070;
     [Export] private int _requiredPlayers = 1;
     [Export] private NetworkBridge _networkBridge;
-    private ServerProperties _properties;
+    private PlayerRepository _properties;
 
     public event Action<GameState> ChangeState;
 
-    public void Init(ServerProperties properties)
+    public void Init(PlayerRepository properties)
     {
         _networkBridge.RequestJoin += OnRequestingJoin;
         _properties = properties;
@@ -41,9 +41,10 @@ public partial class Server : Node
     {
         Print($"Получен запрос на вход от ID: {senderId}");
 
-        if (_properties.PlayersCount >= _requiredPlayers) return;
+        if (_properties.PlayersCount > _requiredPlayers) return;
 
-        _properties.AddPlayer(senderId);
+        //Пока все будут в первой команде
+        _properties.AddPlayer(senderId, Shared.Data.TeamType.FirstTeam);
 
         _networkBridge.RpcId(senderId, nameof(_networkBridge.OnApprovedJoin));
 

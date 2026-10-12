@@ -12,16 +12,35 @@ background_mode = 2
 sky = SubResource("Sky_rwof1")
 glow_enabled = true
 
-[node name="GameWorld" type="Node2D" unique_id=1057989470]
+[sub_resource type="HeightMapShape3D" id="HeightMapShape3D_esjn7"]
+map_width = 10
+map_depth = 10
+map_data = PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
-[node name="Presentation" type="Node2D" parent="." unique_id=872725914]
+[sub_resource type="PlaneMesh" id="PlaneMesh_esjn7"]
+size = Vector2(10, 10)
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Presentation" unique_id=750328990]
+[node name="GameWorld" type="Node" unique_id=1478282614]
+
+[node name="Environment" type="Node" parent="." unique_id=2076478295]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Environment" unique_id=750328990]
 transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
 shadow_enabled = true
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="Presentation" unique_id=151327037]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Environment" unique_id=151327037]
 environment = SubResource("Environment_rpmee")
 
-[node name="Camera3D" type="Camera3D" parent="Presentation" unique_id=825276698]
+[node name="Camera3D" type="Camera3D" parent="Environment" unique_id=825276698]
+transform = Transform3D(1, 0, 0, 0, 0.9718331, 0.23567027, 0, -0.23567027, 0.9718331, 0, 0.46325946, 0.26431)
 current = true
+
+[node name="Ground" type="StaticBody3D" parent="." unique_id=1425590272]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground" unique_id=967609260]
+shape = SubResource("HeightMapShape3D_esjn7")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground" unique_id=555576196]
+mesh = SubResource("PlaneMesh_esjn7")
+
+[node name="Characters" type="Node" parent="." unique_id=1757072378]

@@ -1,3 +1,15 @@
 [gd_scene format=3 uid="uid://pfr4vt13qx12"]
 
-[node name="GameWorld" type="Node2D" unique_id=201020837]
+[sub_resource type="HeightMapShape3D" id="HeightMapShape3D_esjn7"]
+map_width = 10
+map_depth = 10
+map_data = PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+[node name="GameWorld" type="Node" unique_id=619905325]
+
+[node name="Ground" type="StaticBody3D" parent="." unique_id=1362205683]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground" unique_id=338076203]
+shape = SubResource("HeightMapShape3D_esjn7")
+
+[node name="Characters" type="Node" parent="." unique_id=554961017]
