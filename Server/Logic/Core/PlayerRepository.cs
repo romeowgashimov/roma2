@@ -7,7 +7,7 @@ namespace ROMA2.Server.Logic.Core;
 
 public class PlayerRepository
 {
-    private List<long> _playersIds = [10];
+    private List<long> _playersIds = [];
     // key - player peer, int - character id
     private Dictionary<long, int> _pickedCharacters = [];
     // Уже загруженные объекты персонажей

@@ -9,12 +9,11 @@ public partial class EntryPoint : Node
     [Export] private NetworkBridge _bridge;
     [Export] private Network.Client _client;
     [Export] private StartMenu _startMenu;
+    [Export] private MultiplayerSpawner _spawner;
 
     public override void _Ready()
     {
-        CharactersConfig charConfig = new(false);
-        
-        _client.Init();
+        _client.Init(_spawner);
         _startMenu.Init();
     }
 

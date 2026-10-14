@@ -17,9 +17,10 @@ public class CharactersConfig
     public string GetChampionPath(int id)
     {
         string path = _isServer 
-            ? "Server/Scenes/" 
-            : "Client/Scenes/";
+            ? "res://Server/Scenes/" 
+            : "res://Client/Scenes/";
+        path += $"{_charactersPaths[id]}.tscn";
 
-        return path + _charactersPaths[id];
+        return path;
     }
 }

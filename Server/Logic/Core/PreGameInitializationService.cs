@@ -29,21 +29,31 @@ public class PreGameInitializationService
     {
         int playersCount = _playerRepos.PlayersCount;
 
+        GD.Print(playersCount);
         for (int i = 0; i < playersCount; ++i)
         {
             var (peer, team) = _playerRepos.GetPlayer(i);
             int characterId = _playerRepos.GetCharacterId(peer);
+            var charEntity = _store.CreateEntity();
             
             Dictionary data = [];
             data.Add("characterId", characterId);
+            data.Add("entityId", charEntity.Id);
 
-            Node3D character = _factory.Create(data);
+            var character = _factory.Create(data);
+
+            GD.Print(data);
 
             character.Position = _spawnConfig.GetSpawnPosition(team, i);
 
-            Entity playerEntity = _store.CreateEntity(
-                new PlayerPeer { Value = peer },
-                new Team { Value = team });
+            var playerEntity = _store
+                .CreateEntity(
+                    new PlayerPeer { Value = peer },
+                    new Team { Value = team },
+                    new CharacterReference { Value = character });
+            
+
+            character.Init(_store);
         }
     }
 }

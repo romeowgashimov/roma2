@@ -1,5 +1,6 @@
 using System;
 using Godot;
+using ROMA2.Client.Logic.Core;
 using ROMA2.Shared;
 using static Godot.GD;
 
@@ -11,12 +12,16 @@ public partial class Client : Node
     [Export] private string _serverIp = "127.0.0.1";
     [Export] private int _serverPort = 7070;
     [Export] private NetworkBridge _networkBridge;
+
+    private MultiplayerSpawner _spawner;
     
     public Action SuccessfulConnection;
 
     // Сделать очистку событий
-    public void Init()
+    public void Init(MultiplayerSpawner spawner)
     {
+        _spawner = spawner;
+
         Multiplayer.ConnectedToServer += OnConnectedToServer;
         Multiplayer.ConnectionFailed += OnConnectionFailed;
 
@@ -69,5 +74,7 @@ public partial class Client : Node
         SuccessfulConnection?.Invoke();
         
         GetParent().AddChild(gameWorldInstance);
+
+        (gameWorldInstance as GameWorldEntryPoint).Init(_networkBridge, _spawner);
     }
 }

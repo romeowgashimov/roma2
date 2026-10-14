@@ -26,7 +26,11 @@ public class CharacterSelectionService
 
     public void Run(double delta)
     {
-        if (_playerRepos.PlayersCount < _currPlayerId) ChangeState?.Invoke(GameState.Play);
+        if (_playerRepos.PlayersCount <= _currPlayerId) 
+            {
+                ChangeState?.Invoke(GameState.Play);
+                return;
+            }
 
         // Проверяем, если текущий пир игрока 0, значит никто ещё не назначен на выбор персонажа
         // Поэтому назначаем нового игрока для выбора
@@ -35,8 +39,6 @@ public class CharacterSelectionService
             (_currPeer, _) = _playerRepos.GetPlayer(_currPlayerId);
 
             _bridge.Rpc(nameof(_bridge.OnSelectingCharacter), _currPeer);
-
-            _currPlayerId++;
         }
 
         if (_currTime >= _requiredTimeToSelect)
@@ -51,6 +53,7 @@ public class CharacterSelectionService
 
     public void OnCharacterSelected(long playerPeer, int characterId)
     {
+        // Мы не проверяем порядок выбора, если первый выбирает, то выбрать может и второй
         if (_playerRepos.IsCharacterTaken(playerPeer, characterId))
         {
             _bridge.Rpc(nameof(_bridge.OnCharacterSelectionCanceled), playerPeer, true);
@@ -61,6 +64,7 @@ public class CharacterSelectionService
         //Когда мы выбрали персонажа, нужно дать выбор другому игроку
         _currTime = 0;
         _currPeer = 0;
+        _currPlayerId++;
 
         _bridge.Rpc(nameof(_bridge.OnCharacterSelectionApproved), playerPeer, characterId);
     }

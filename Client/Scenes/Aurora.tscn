@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://d1mq0o6pgpqva"]
+
+[ext_resource type="Script" uid="uid://4vxhm3hdgp1v" path="res://Client/Logic/Core/Aurora.cs" id="1_dex8m"]
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_dex8m"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = false
+properties/0/replication_mode = 1
+
+[node name="Aurora" type="CharacterBody3D" unique_id=2026109021]
+script = ExtResource("1_dex8m")
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=267541334]
+replication_config = SubResource("SceneReplicationConfig_dex8m")

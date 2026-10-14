@@ -1,9 +1,8 @@
-using Godot;
-using Script = Friflo.Engine.ECS.Script;
+using Friflo.Engine.ECS;
 
 namespace ROMA2.Shared.Data;
 
-public class CharacterReference : Script
+public struct CharacterReference : IComponent
 {
-    public Node3D Value;
+    public Character Value;
 }

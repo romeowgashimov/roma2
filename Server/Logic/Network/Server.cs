@@ -48,6 +48,8 @@ public partial class Server : Node
 
         _networkBridge.RpcId(senderId, nameof(_networkBridge.OnApprovedJoin));
 
+        GD.Print(_properties.PlayersCount + "    " + _requiredPlayers);
+
         if (_properties.PlayersCount == _requiredPlayers) 
             ChangeState?.Invoke(GameState.WaitChoices);
     }

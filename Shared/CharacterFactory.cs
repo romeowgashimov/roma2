@@ -9,30 +9,36 @@ public class CharacterFactory
     private CharactersConfig _config;
     private MultiplayerSpawner _spawner;
     private Node _characterRoot;
-    private EntityStore _store;
 
     public CharacterFactory(CharactersConfig config, MultiplayerSpawner spawner, Node characterRoot)
     {
         _config = config;
         _spawner = spawner;
         _characterRoot = characterRoot;
+        //GD.Print(characterRoot.Name);
         
-        _spawner.SpawnFunction = Callable.From<Dictionary, Node3D>(Spawn);
+        _spawner.SpawnFunction = Callable.From<Dictionary, Character>(Spawn);
     }
 
-    public Node3D Create(Dictionary data)
+    public Character Create(Dictionary data)
     {
-        return (Node3D)_spawner.Spawn(data);
+        return (Character)_spawner.Spawn(data);
     }
 
-    private Node3D Spawn(Dictionary data)
+    private Character Spawn(Dictionary data)
     {
-        int id = (int)data["characterId"];
-        string path = _config.GetChampionPath(id);
-        
-        var character = GD.Load<PackedScene>(path).Instantiate<Node3D>();
+        int instId = (int)data["characterId"];
+        int entityId = (int)data["entityId"];
 
-        _characterRoot.AddChild(character);
+        string path = _config.GetChampionPath(instId);
+        
+        var character = GD.Load<PackedScene>(path).Instantiate<Character>();
+
+        GD.Print(path);
+
+        character.Name = $"Character_{entityId}"; 
+
+        character.EntityId = entityId;
 
         return character;
     }
