@@ -1,6 +1,6 @@
 namespace ROMA2.Shared.Data;
 
-public class CharactersConfig
+public class CharactersConfiguration
 {
     private bool _isServer;
     private readonly string[] _charactersPaths =
@@ -9,7 +9,7 @@ public class CharactersConfig
         "Sitaciya"
     ];
 
-    public CharactersConfig(bool isServer)
+    public CharactersConfiguration(bool isServer)
     {
         _isServer = isServer;
     }
@@ -22,5 +22,10 @@ public class CharactersConfig
         path += $"{_charactersPaths[id]}.tscn";
 
         return path;
+    }
+
+    public string GetChampionName(int id)
+    {
+        return _charactersPaths[id];
     }
 }

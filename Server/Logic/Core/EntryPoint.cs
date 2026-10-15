@@ -9,32 +9,50 @@ namespace ROMA2.Server.Logic.Core;
 
 public partial class EntryPoint : Node
 {
+    [ExportGroup("Network")]
     [Export] private NetworkBridge _networkBridge;
     [Export] private Network.Server _server;
     [Export] private GameState _state = WaitPlayers;
-    [Export] private MultiplayerSpawner _spawner;
-    [Export] private Node _characterRoot;
-    [Export] private Vector3 _fSpawnPos;
-    [Export] private Vector3 _sSpawnPos;
+
+    [ExportGroup("Character Factory")]
+    [Export] private MultiplayerSpawner _charSpawner;
+
+    [ExportGroup("Spawn Configuration", "pref")]
+    [ExportSubgroup("First Team")]
+    [Export] private Vector3 _fFirstPosition;
+    [Export] private Vector3 _fSecondPosition;
+    [Export] private Vector3 _fThirdPosition;
+    [Export] private Vector3 _fFourthPosition;
+    [Export] private Vector3 _fFifthPosition;
+
+    [ExportSubgroup("Second Team")]
+    [Export] private Vector3 _sFirstPosition;
+    [Export] private Vector3 _sSecondPosition;
+    [Export] private Vector3 _sThirdPosition;
+    [Export] private Vector3 _sFourthPosition;
+    [Export] private Vector3 _sFifthPosition;
+
     private CharacterSelectionService _charSelectService;
     private PreGameInitializationService _initService;
-    private bool Init = false;
 
     public override void _Ready()
     {
         EntityStore store = new();
+        SpawnConfiguration spawnConfig = new(
+            [_fFirstPosition, _fSecondPosition, _fThirdPosition, _fFourthPosition, _fFifthPosition], 
+            [_sFirstPosition, _sSecondPosition, _sThirdPosition, _sFourthPosition, _sFifthPosition]);
         PlayerRepository playerRepos = new();
-        CharactersConfig config = new(true);
-        CharacterFactory charFactory = new(config, _spawner, _characterRoot);
-        _charSelectService = new();
-        SpawnConfiguration spawnConfig = new([_fSpawnPos], [_fSpawnPos]);
+        CharactersConfiguration config = new(true);
+        CharacterFactory charFactory = new(config, _charSpawner);
+
+        _charSelectService = new(playerRepos, _networkBridge);
+        _charSelectService.ChangeState += OnChangingState;
+
         _initService = new(playerRepos, spawnConfig, store, charFactory);
+        _initService.ChangeState += OnChangingState;
 
         _server.Init(playerRepos);
         _server.ChangeState += OnChangingState;
-
-        _charSelectService.Init(playerRepos, _networkBridge);
-        _charSelectService.ChangeState += OnChangingState;
 
         _server.Start();
     }
@@ -48,10 +66,10 @@ public partial class EntryPoint : Node
             case WaitChoices:
                 _charSelectService.Run(delta);
                 break;
+            case Initialization:
+                _initService.Run();
+                break;
             case Play:
-                if (!Init) _initService.Run();
-
-                Init = true;
                 break;
         }
     }
@@ -59,6 +77,7 @@ public partial class EntryPoint : Node
     public void OnChangingState(GameState state)
     {
         _state = state;
-        GD.Print(state);
+
+        Print($"Текущее состояние сервера: {state}");
     }
 }

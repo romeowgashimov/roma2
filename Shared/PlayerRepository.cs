@@ -3,7 +3,7 @@ using System.Linq;
 using Godot;
 using ROMA2.Shared.Data;
 
-namespace ROMA2.Server.Logic.Core;
+namespace ROMA2.Shared;
 
 public class PlayerRepository
 {
@@ -41,9 +41,9 @@ public class PlayerRepository
         return _pickedCharacters.Any(x => x.Key == playerPeer || x.Value == characterId);
     }
 
-    public void AddCharacterId(long playerPeer, int characterId)
+    public bool TryAddCharacterId(long playerPeer, int characterId)
     {
-        _pickedCharacters.Add(playerPeer, characterId);
+        return _pickedCharacters.TryAdd(playerPeer, characterId);
     }
 
     public int GetCharacterId(long peer)

@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://b505tciu05trq"]
 
 [ext_resource type="Script" uid="uid://dcdycf6wr60sk" path="res://Client/Logic/Core/GameWorldEntryPoint.cs" id="1_rwof1"]
-[ext_resource type="Script" uid="uid://bachh3aobkiri" path="res://Client/Logic/Core/CharacterSelectionMenu.cs" id="2_rpmee"]
+[ext_resource type="Script" uid="uid://mc2lklg1ji8k" path="res://Client/Logic/Core/CharacterSelectionView.cs" id="2_rpmee"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_wqvrr"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -23,9 +23,10 @@ map_data = PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 [sub_resource type="PlaneMesh" id="PlaneMesh_esjn7"]
 size = Vector2(10, 10)
 
-[node name="GameWorld" type="Node" unique_id=1478282614 node_paths=PackedStringArray("_charSelectMenu")]
+[node name="GameWorld" type="Node" unique_id=1478282614 node_paths=PackedStringArray("_charSelectView", "_spawner")]
 script = ExtResource("1_rwof1")
-_charSelectMenu = NodePath("SelectionMenu")
+_charSelectView = NodePath("SelectionView")
+_spawner = NodePath("Characters/MultiplayerSpawner")
 
 [node name="Environment" type="Node" parent="." unique_id=2076478295]
 
@@ -50,18 +51,21 @@ mesh = SubResource("PlaneMesh_esjn7")
 
 [node name="Characters" type="Node" parent="." unique_id=1757072378]
 
-[node name="SelectionMenu" type="CanvasLayer" parent="." unique_id=978660750 node_paths=PackedStringArray("_confirmButton", "_charactersButtons")]
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Characters" unique_id=1810418268]
+spawn_path = NodePath("..")
+
+[node name="SelectionView" type="CanvasLayer" parent="." unique_id=978660750 node_paths=PackedStringArray("_confirmButton", "_charactersButtonsRoot")]
 script = ExtResource("2_rpmee")
 _confirmButton = NodePath("Button2")
-_charactersButtons = NodePath(".")
+_charactersButtonsRoot = NodePath(".")
 
-[node name="Button" type="Button" parent="SelectionMenu" unique_id=416038354]
+[node name="Button" type="Button" parent="SelectionView" unique_id=416038354]
 offset_left = 274.0
 offset_top = 94.0
 offset_right = 367.0
 offset_bottom = 182.0
 
-[node name="Button2" type="Button" parent="SelectionMenu" unique_id=1758031167]
+[node name="Button2" type="Button" parent="SelectionView" unique_id=1758031167]
 offset_left = 434.0
 offset_top = 505.0
 offset_right = 781.0

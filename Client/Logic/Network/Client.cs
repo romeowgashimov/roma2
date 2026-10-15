@@ -8,19 +8,18 @@ namespace ROMA2.Client.Logic.Network;
 
 public partial class Client : Node
 {
-    [Export] private string _gameWorldScenePath = "res://Client/Scenes/game_world.tscn";
     [Export] private string _serverIp = "127.0.0.1";
     [Export] private int _serverPort = 7070;
     [Export] private NetworkBridge _networkBridge;
-
-    private MultiplayerSpawner _spawner;
     
+    private WorldFactory _factory;
+
     public Action SuccessfulConnection;
 
     // Сделать очистку событий
-    public void Init(MultiplayerSpawner spawner)
+    public void Init(WorldFactory factory)
     {
-        _spawner = spawner;
+        _factory = factory;
 
         Multiplayer.ConnectedToServer += OnConnectedToServer;
         Multiplayer.ConnectionFailed += OnConnectionFailed;
@@ -61,20 +60,9 @@ public partial class Client : Node
 
     private void OnApprovedJoin()
     {
-        var gameWorldScene = Load<PackedScene>(_gameWorldScenePath);
-
-        if (gameWorldScene == null)
-        {
-            PrintErr($"Не удалось загрузить ресурс сцены по пути: {_gameWorldScenePath}");
-            return;
-        }
-
-        Node gameWorldInstance = gameWorldScene.Instantiate();
-
-        SuccessfulConnection?.Invoke();
-        
-        GetParent().AddChild(gameWorldInstance);
-
-        (gameWorldInstance as GameWorldEntryPoint).Init(_networkBridge, _spawner);
+        if (_factory.TryCreate(out var _))
+            SuccessfulConnection?.Invoke();
+        else 
+            PrintErr($"{nameof(Client)} Ошибка создания игрового мира");
     }
 }

@@ -1,5 +1,7 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 using Godot;
+using Godot.Collections;
 
 namespace ROMA2.Shared;
 
@@ -7,6 +9,7 @@ public partial class NetworkBridge : Node
 {
     public event Action<long> RequestJoin;
     public event Action ApproveJoin;
+    public event Action<Dictionary> AllPlayersConnected;
     public event Action<long> SelectCharacter;
     public event Action<long, int> CharacterSelected;
     public event Action<long, bool> CharacterSelectionCanceled;
@@ -32,6 +35,12 @@ public partial class NetworkBridge : Node
     public void OnApprovedJoin()
     {
         ApproveJoin?.Invoke();
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    public void OnAllPlayersConnected(Dictionary data)
+    {
+        AllPlayersConnected?.Invoke(data);
     }
 
     [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]

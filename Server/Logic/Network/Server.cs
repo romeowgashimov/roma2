@@ -11,14 +11,14 @@ public partial class Server : Node
     [Export] private int _serverPort = 7070;
     [Export] private int _requiredPlayers = 1;
     [Export] private NetworkBridge _networkBridge;
-    private PlayerRepository _properties;
+    private PlayerRepository _playerRepos;
 
     public event Action<GameState> ChangeState;
 
-    public void Init(PlayerRepository properties)
+    public void Init(PlayerRepository playerRepos)
     {
         _networkBridge.RequestJoin += OnRequestingJoin;
-        _properties = properties;
+        _playerRepos = playerRepos;
     }
 
     public void Start()
@@ -41,16 +41,23 @@ public partial class Server : Node
     {
         Print($"Получен запрос на вход от ID: {senderId}");
 
-        if (_properties.PlayersCount > _requiredPlayers) return;
+        if (_playerRepos.PlayersCount > _requiredPlayers) 
+        {
+            Print($"Запрос на вход от {senderId} отклонён, так как все места заняты");
+            return;
+        }
 
         //Пока все будут в первой команде
-        _properties.AddPlayer(senderId, Shared.Data.TeamType.FirstTeam);
+        _playerRepos.AddPlayer(senderId, Shared.Data.TeamType.FirstTeam);
 
         _networkBridge.RpcId(senderId, nameof(_networkBridge.OnApprovedJoin));
 
-        GD.Print(_properties.PlayersCount + "    " + _requiredPlayers);
+        Print($"{senderId} успешно вошёл в игру");
 
-        if (_properties.PlayersCount == _requiredPlayers) 
+        if (_playerRepos.PlayersCount == _requiredPlayers) 
+        {
+            Print($"Все игроки вошли");
             ChangeState?.Invoke(GameState.WaitChoices);
+        }
     }
 }

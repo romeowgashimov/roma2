@@ -1,4 +1,3 @@
-using Friflo.Engine.ECS;
 using Godot;
 using Godot.Collections;
 using ROMA2.Shared.Data;
@@ -6,16 +5,13 @@ using ROMA2.Shared.Data;
 namespace ROMA2.Shared;
 public class CharacterFactory
 {
-    private CharactersConfig _config;
+    private CharactersConfiguration _config;
     private MultiplayerSpawner _spawner;
-    private Node _characterRoot;
 
-    public CharacterFactory(CharactersConfig config, MultiplayerSpawner spawner, Node characterRoot)
+    public CharacterFactory(CharactersConfiguration config, MultiplayerSpawner spawner)
     {
         _config = config;
         _spawner = spawner;
-        _characterRoot = characterRoot;
-        //GD.Print(characterRoot.Name);
         
         _spawner.SpawnFunction = Callable.From<Dictionary, Character>(Spawn);
     }
@@ -31,12 +27,11 @@ public class CharacterFactory
         int entityId = (int)data["entityId"];
 
         string path = _config.GetChampionPath(instId);
+        string name = _config.GetChampionName(instId);
         
         var character = GD.Load<PackedScene>(path).Instantiate<Character>();
 
-        GD.Print(path);
-
-        character.Name = $"Character_{entityId}"; 
+        character.Name = $"{name}_{entityId}"; 
 
         character.EntityId = entityId;
 

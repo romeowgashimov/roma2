@@ -6,32 +6,29 @@ namespace ROMA2.Client.Logic.Core;
 
 public partial class GameWorldEntryPoint : Node
 {
-    [Export] private CharacterSelectionMenu _charSelectMenu;
+    [Export] private CharacterSelectionView _charSelectView;
     [Export] private MultiplayerSpawner _spawner;
+    
     private NetworkBridge _bridge;
-    private CharacterSelectionService _charSelectService;
-    private CharacterFactory _charFactory;
 
 
-    public void Init(NetworkBridge bridge, MultiplayerSpawner spawner)
+    public void Init(NetworkBridge bridge)
     {
-        CharactersConfig charConfig = new(false);
+        CharactersConfiguration charConfig = new(false);
+        PlayerRepository playerRepos = new();
 
         _bridge = bridge;
-        _spawner = spawner;
 
-        CharacterSelectionService charSelectService = new(_bridge);
-        _charSelectService = charSelectService;
+        CharacterSelectionService charSelectService = new(_bridge, playerRepos);
+        CharacterSelectionViewModel charSelectViewModel = new(charSelectService);
+        _charSelectView.Init(charSelectViewModel);
 
-        _charFactory = new(charConfig, _spawner, _spawner.GetParent());
-        GD.Print("afafafwq" + _spawner.GetParent().Name);
-        
-        _charSelectMenu.Init(_charSelectService);
+        CharacterFactory charFactory = new(charConfig, _spawner);
 
         _bridge.CharacterSelectionApproved += UnSubscribe;
         void UnSubscribe(long _, int __)
         {
-            _charSelectMenu.QueueFree();
+            _charSelectView.QueueFree();
             _bridge.CharacterSelectionApproved -= UnSubscribe;
         }
     }

@@ -1,8 +1,9 @@
 using Friflo.Engine.ECS;
-using Godot;
 using Godot.Collections;
+using static Godot.GD;
 using ROMA2.Shared;
 using ROMA2.Shared.Data;
+using System;
 
 namespace ROMA2.Server.Logic.Core;
 
@@ -12,6 +13,8 @@ public class PreGameInitializationService
     private SpawnConfiguration _spawnConfig;
     private CharacterFactory _factory;
     private EntityStore _store;
+
+    public event Action<GameState> ChangeState;
 
     public PreGameInitializationService(
         PlayerRepository playerRepos, 
@@ -29,7 +32,8 @@ public class PreGameInitializationService
     {
         int playersCount = _playerRepos.PlayersCount;
 
-        GD.Print(playersCount);
+        Print($"Инициализация игры начата. Всего игроков: {playersCount}");
+
         for (int i = 0; i < playersCount; ++i)
         {
             var (peer, team) = _playerRepos.GetPlayer(i);
@@ -40,20 +44,21 @@ public class PreGameInitializationService
             data.Add("characterId", characterId);
             data.Add("entityId", charEntity.Id);
 
-            var character = _factory.Create(data);
+            Print($"Данные о создании персонажа: {data}");
 
-            GD.Print(data);
+            var character = _factory.Create(data);
 
             character.Position = _spawnConfig.GetSpawnPosition(team, i);
 
-            var playerEntity = _store
-                .CreateEntity(
-                    new PlayerPeer { Value = peer },
-                    new Team { Value = team },
-                    new CharacterReference { Value = character });
+            var playerEntity = _store.CreateEntity(
+                new PlayerPeer { Value = peer },
+                new Team { Value = team },
+                new CharacterReference { Value = character });
             
 
             character.Init(_store);
         }
+
+        ChangeState?.Invoke(GameState.Play);
     }
 }

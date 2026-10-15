@@ -4,6 +4,7 @@ public enum GameState : byte
 {
     WaitPlayers,
     WaitChoices,
+    Initialization,
     Play,
     Pause,
     End,

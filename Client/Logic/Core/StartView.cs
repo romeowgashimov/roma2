@@ -2,7 +2,7 @@ using Godot;
 
 namespace ROMA2.Client.Logic.Core;
 
-public partial class StartMenu : Node2D
+public partial class StartView : Node2D
 {
     [Export] private Network.Client _client;
     [Export] private Button _button;

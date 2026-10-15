@@ -16,7 +16,7 @@ public class CharacterSelectionService
 
     public event Action<GameState> ChangeState;
 
-    public void Init(PlayerRepository playerRepos, NetworkBridge bridge)
+    public CharacterSelectionService(PlayerRepository playerRepos, NetworkBridge bridge)
     {
         _playerRepos = playerRepos;
         _bridge = bridge;
@@ -27,10 +27,10 @@ public class CharacterSelectionService
     public void Run(double delta)
     {
         if (_playerRepos.PlayersCount <= _currPlayerId) 
-            {
-                ChangeState?.Invoke(GameState.Play);
-                return;
-            }
+        {
+            ChangeState?.Invoke(GameState.Initialization);
+            return;
+        }
 
         // Проверяем, если текущий пир игрока 0, значит никто ещё не назначен на выбор персонажа
         // Поэтому назначаем нового игрока для выбора
@@ -60,7 +60,7 @@ public class CharacterSelectionService
             return;
         }
 
-        _playerRepos.AddCharacterId(playerPeer, characterId);
+        _playerRepos.TryAddCharacterId(playerPeer, characterId);
         //Когда мы выбрали персонажа, нужно дать выбор другому игроку
         _currTime = 0;
         _currPeer = 0;

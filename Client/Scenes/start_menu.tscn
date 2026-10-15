@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://yvks3kr6xpur"]
 
-[ext_resource type="Script" uid="uid://djxdsa2fnyabp" path="res://Client/Logic/Core/StartMenu.cs" id="1_7beu8"]
+[ext_resource type="Script" uid="uid://dwnm3x5plqdvt" path="res://Client/Logic/Core/StartView.cs" id="1_7beu8"]
 
-[node name="StartMenu" type="Node2D" unique_id=752878561 node_paths=PackedStringArray("_button")]
+[node name="StartView" type="Node2D" unique_id=752878561 node_paths=PackedStringArray("_button")]
 script = ExtResource("1_7beu8")
 _button = NodePath("Button")
 
