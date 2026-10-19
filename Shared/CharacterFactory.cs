@@ -1,3 +1,4 @@
+using Friflo.Engine.ECS;
 using Godot;
 using Godot.Collections;
 using ROMA2.Shared.Data;
@@ -7,11 +8,13 @@ public class CharacterFactory
 {
     private CharactersConfiguration _config;
     private MultiplayerSpawner _spawner;
+    private EntityStore _store;
 
-    public CharacterFactory(CharactersConfiguration config, MultiplayerSpawner spawner)
+    public CharacterFactory(CharactersConfiguration config, MultiplayerSpawner spawner, EntityStore store)
     {
         _config = config;
         _spawner = spawner;
+        _store = store;
         
         _spawner.SpawnFunction = Callable.From<Dictionary, Character>(Spawn);
     }
@@ -25,6 +28,7 @@ public class CharacterFactory
     {
         int instId = (int)data["characterId"];
         int entityId = (int)data["entityId"];
+        long ownerPeer = (long)data["ownerPeer"];
 
         string path = _config.GetChampionPath(instId);
         string name = _config.GetChampionName(instId);
@@ -34,6 +38,9 @@ public class CharacterFactory
         character.Name = $"{name}_{entityId}"; 
 
         character.EntityId = entityId;
+        character.OwnerPeer = ownerPeer;
+
+        character.Init(_store);
 
         return character;
     }

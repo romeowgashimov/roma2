@@ -60,7 +60,7 @@ public partial class Client : Node
 
     private void OnApprovedJoin()
     {
-        if (_factory.TryCreate(out var _))
+        if (_factory.TryCreate(this, out var _))
             SuccessfulConnection?.Invoke();
         else 
             PrintErr($"{nameof(Client)} Ошибка создания игрового мира");

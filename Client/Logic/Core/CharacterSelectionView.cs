@@ -60,7 +60,7 @@ public partial class CharacterSelectionView : Node
         {
             int length = _charButtons.Length;
 
-            for (int i = 0; i < length; ++i)
+            for (int i = 0; i < length - 1; i++)
             {
                 int index = i;
 

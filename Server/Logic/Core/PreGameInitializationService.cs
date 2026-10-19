@@ -13,6 +13,8 @@ public class PreGameInitializationService
     private SpawnConfiguration _spawnConfig;
     private CharacterFactory _factory;
     private EntityStore _store;
+    private NetworkBridge _bridge;
+    private InputSynchronizerFactory _inputSyncFactory;
 
     public event Action<GameState> ChangeState;
 
@@ -20,12 +22,16 @@ public class PreGameInitializationService
         PlayerRepository playerRepos, 
         SpawnConfiguration spawnConfig, 
         EntityStore store,
-        CharacterFactory factory)
+        CharacterFactory factory,
+        NetworkBridge bridge,
+        InputSynchronizerFactory inputSyncFactory)
     {
         _playerRepos = playerRepos;
         _spawnConfig = spawnConfig;
         _store = store;
         _factory = factory;
+        _bridge = bridge;
+        _inputSyncFactory = inputSyncFactory;
     }
 
     public void Run()
@@ -43,6 +49,7 @@ public class PreGameInitializationService
             Dictionary data = [];
             data.Add("characterId", characterId);
             data.Add("entityId", charEntity.Id);
+            data.Add("ownerPeer", peer);
 
             Print($"Данные о создании персонажа: {data}");
 
@@ -50,13 +57,15 @@ public class PreGameInitializationService
 
             character.Position = _spawnConfig.GetSpawnPosition(team, i);
 
+            var inputSync = _inputSyncFactory.Create(peer);
+            _bridge.RpcId(peer, nameof(_bridge.OnInputSynchronizerCreation));
+
             var playerEntity = _store.CreateEntity(
                 new PlayerPeer { Value = peer },
                 new Team { Value = team },
-                new CharacterReference { Value = character });
-            
-
-            character.Init(_store);
+                new CharacterReference { Value = character },
+                new InputSynchronizerReference { Value = inputSync },
+                new MoveSpeed { Value = 5 });
         }
 
         ChangeState?.Invoke(GameState.Play);

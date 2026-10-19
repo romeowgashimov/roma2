@@ -1,5 +1,4 @@
 using System;
-using System.ComponentModel.DataAnnotations;
 using Godot;
 using Godot.Collections;
 
@@ -14,6 +13,8 @@ public partial class NetworkBridge : Node
     public event Action<long, int> CharacterSelected;
     public event Action<long, bool> CharacterSelectionCanceled;
     public event Action<long, int> CharacterSelectionApproved;
+    public event Func<InputSynchronizer> InputSyncCreation;
+    public event Action<long> InputSyncCreationSuccess;
 
     public override void _Notification(int what)
     {
@@ -66,5 +67,18 @@ public partial class NetworkBridge : Node
     public void OnCharacterSelectionApproved(long selectorPeer, int characterId)
     {
         CharacterSelectionApproved?.Invoke(selectorPeer, characterId);
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    public void OnInputSynchronizerCreation()
+    { 
+        InputSyncCreation?.Invoke();
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    public void OnInputSynchronizerCreationSuccess()
+    {
+        long senderId = Multiplayer.GetRemoteSenderId();
+        InputSyncCreationSuccess?.Invoke(senderId);
     }
 }

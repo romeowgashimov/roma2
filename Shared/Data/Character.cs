@@ -7,6 +7,7 @@ public abstract partial class Character : CharacterBody3D
 {
     [Export] public float CurrentHealth { get; set; }
     public int EntityId { get; set; }
+    public long OwnerPeer { get; set; }
 
     public abstract void Init(EntityStore store);
 }

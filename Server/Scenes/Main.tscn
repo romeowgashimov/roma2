@@ -5,12 +5,13 @@
 [ext_resource type="Script" uid="uid://wpnhtadfadyb" path="res://Server/Logic/Network/Server.cs" id="2_cimub"]
 [ext_resource type="PackedScene" uid="uid://pfr4vt13qx12" path="res://Server/Scenes/game_world.tscn" id="4_6qy8l"]
 
-[node name="Main" type="Node" unique_id=369472024 node_paths=PackedStringArray("_networkBridge", "_server", "_charSpawner", "_characterRoot")]
+[node name="Main" type="Node" unique_id=369472024 node_paths=PackedStringArray("_networkBridge", "_server", "_charSpawner", "_inputRoot")]
 script = ExtResource("1_eyuga")
 _networkBridge = NodePath("NetworkBridge")
 _server = NodePath("Server")
-_charSpawner = NodePath("GameWorld/Characters/MultiplayerSpawner")
-_characterRoot = NodePath(".")
+_charSpawner = NodePath("GameWorld/Characters/CharacterSpawner")
+_inputRoot = NodePath("GameWorld/Characters")
+_fFirstPosition = Vector3(0, 1.5, 0)
 
 [node name="Server" type="Node" parent="." unique_id=82617968 node_paths=PackedStringArray("_networkBridge")]
 script = ExtResource("2_cimub")

@@ -1,14 +1,44 @@
 [gd_scene format=3 uid="uid://d1mq0o6pgpqva"]
 
-[ext_resource type="Script" uid="uid://4vxhm3hdgp1v" path="res://Client/Logic/Core/Aurora.cs" id="1_dex8m"]
+[ext_resource type="Script" uid="uid://cqlqyaqmlnrqh" path="res://Client/Logic/Core/ClientAurora.cs" id="1_dex8m"]
+[ext_resource type="PackedScene" uid="uid://bksolbni1q1es" path="res://Client/Visuals/Characters/Gwen/Default/gwen.glb" id="2_kqqwx"]
+[ext_resource type="Script" uid="uid://cjkfcnymdw3o4" path="res://Client/Logic/Core/CameraPivotController.cs" id="3_bxruq"]
+[ext_resource type="Texture2D" uid="uid://bvxy7ljktkax4" path="res://icon.svg" id="4_p5xcm"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_dex8m"]
 properties/0/path = NodePath(".:position")
 properties/0/spawn = false
 properties/0/replication_mode = 1
+properties/1/path = NodePath(".:rotation")
+properties/1/spawn = false
+properties/1/replication_mode = 1
 
-[node name="Aurora" type="CharacterBody3D" unique_id=2026109021]
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_esjn7"]
+
+[node name="Aurora" type="CharacterBody3D" unique_id=2026109021 node_paths=PackedStringArray("_cameraPivotController", "_camera")]
 script = ExtResource("1_dex8m")
+_cameraPivotController = NodePath("CameraPivot")
+_camera = NodePath("CameraPivot/Camera3D")
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=267541334]
 replication_config = SubResource("SceneReplicationConfig_dex8m")
+
+[node name="gwen" parent="." unique_id=211063879 instance=ExtResource("2_kqqwx")]
+transform = Transform3D(0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01, 0, -0.7845617, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1095220323]
+shape = SubResource("CapsuleShape3D_esjn7")
+
+[node name="CameraPivot" type="Node3D" parent="." unique_id=1623645113]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3970591, 0.943378, 0)
+script = ExtResource("3_bxruq")
+
+[node name="Camera3D" type="Camera3D" parent="CameraPivot" unique_id=1027670830]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 0, 0.075618744, -0.98924434)
+
+[node name="Aim" type="Node2D" parent="." unique_id=258937717]
+
+[node name="Sprite2D" type="Sprite2D" parent="Aim" unique_id=1627469793]
+position = Vector2(600, 300)
+scale = Vector2(0.285, 0.285)
+texture = ExtResource("4_p5xcm")

@@ -12,7 +12,7 @@ public struct CurrentHealth : IComponent
     public float Value;
 }
 
-public struct MovementSpeed : IComponent
+public struct MoveSpeed : IComponent
 {
     public int Value;
 }

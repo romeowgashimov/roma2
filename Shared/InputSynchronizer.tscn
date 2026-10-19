@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://baavg7gg04ei5"]
+
+[ext_resource type="Script" uid="uid://dg3vysybr6qc6" path="res://Shared/InputSynchronizer.cs" id="1_3qkhu"]
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_3qkhu"]
+properties/0/path = NodePath(".:MouseDirection")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+properties/1/path = NodePath(".:WasdDirection")
+properties/1/spawn = true
+properties/1/replication_mode = 1
+properties/2/path = NodePath(".:ActionButtonsMask")
+properties/2/spawn = true
+properties/2/replication_mode = 1
+
+[node name="InputSynchronizer" type="Node" unique_id=1750897499]
+script = ExtResource("1_3qkhu")
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=1092060161]
+replication_config = SubResource("SceneReplicationConfig_3qkhu")
+public_visibility = false

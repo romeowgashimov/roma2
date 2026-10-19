@@ -21,12 +21,16 @@ map_depth = 10
 map_data = PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_esjn7"]
-size = Vector2(10, 10)
+size = Vector2(100, 100)
 
-[node name="GameWorld" type="Node" unique_id=1478282614 node_paths=PackedStringArray("_charSelectView", "_spawner")]
+[sub_resource type="BoxMesh" id="BoxMesh_esjn7"]
+size = Vector3(1, 5, 1)
+
+[node name="GameWorld" type="Node" unique_id=1478282614 node_paths=PackedStringArray("_charSelectView", "_charSpawner", "_inputRoot")]
 script = ExtResource("1_rwof1")
 _charSelectView = NodePath("SelectionView")
-_spawner = NodePath("Characters/MultiplayerSpawner")
+_charSpawner = NodePath("Characters/CharacterSpawner")
+_inputRoot = NodePath("Characters")
 
 [node name="Environment" type="Node" parent="." unique_id=2076478295]
 
@@ -36,10 +40,6 @@ shadow_enabled = true
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="Environment" unique_id=151327037]
 environment = SubResource("Environment_rpmee")
-
-[node name="Camera3D" type="Camera3D" parent="Environment" unique_id=825276698]
-transform = Transform3D(1, 0, 0, 0, 0.9718331, 0.23567027, 0, -0.23567027, 0.9718331, 0, 0.46325946, 0.26431)
-current = true
 
 [node name="Ground" type="StaticBody3D" parent="." unique_id=1425590272]
 
@@ -51,7 +51,7 @@ mesh = SubResource("PlaneMesh_esjn7")
 
 [node name="Characters" type="Node" parent="." unique_id=1757072378]
 
-[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Characters" unique_id=1810418268]
+[node name="CharacterSpawner" type="MultiplayerSpawner" parent="Characters" unique_id=1810418268]
 spawn_path = NodePath("..")
 
 [node name="SelectionView" type="CanvasLayer" parent="." unique_id=978660750 node_paths=PackedStringArray("_confirmButton", "_charactersButtonsRoot")]
@@ -70,4 +70,9 @@ offset_left = 434.0
 offset_top = 505.0
 offset_right = 781.0
 offset_bottom = 578.0
+disabled = true
 text = "Выбрать"
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=823414925]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5517144, -2.6270883)
+mesh = SubResource("BoxMesh_esjn7")

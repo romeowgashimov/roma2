@@ -1,4 +1,5 @@
 using Friflo.Engine.ECS;
+using Friflo.Engine.ECS.Systems;
 using Godot;
 using ROMA2.Shared;
 using ROMA2.Shared.Data;
@@ -16,6 +17,7 @@ public partial class EntryPoint : Node
 
     [ExportGroup("Character Factory")]
     [Export] private MultiplayerSpawner _charSpawner;
+    [Export]private Node _inputRoot;
 
     [ExportGroup("Spawn Configuration", "pref")]
     [ExportSubgroup("First Team")]
@@ -35,20 +37,29 @@ public partial class EntryPoint : Node
     private CharacterSelectionService _charSelectService;
     private PreGameInitializationService _initService;
 
+    private SystemRoot _root;
+
     public override void _Ready()
     {
         EntityStore store = new();
+        _root = new(store)
+        {
+            new MovementSystem()
+        };
+
         SpawnConfiguration spawnConfig = new(
             [_fFirstPosition, _fSecondPosition, _fThirdPosition, _fFourthPosition, _fFifthPosition], 
             [_sFirstPosition, _sSecondPosition, _sThirdPosition, _sFourthPosition, _sFifthPosition]);
-        PlayerRepository playerRepos = new();
-        CharactersConfiguration config = new(true);
-        CharacterFactory charFactory = new(config, _charSpawner);
+        long myPeer = _server.Multiplayer.GetUniqueId();
+        PlayerRepository playerRepos = new() { MyPeer = myPeer };
+        CharactersConfiguration config = new(isServer: true);
+        CharacterFactory charFactory = new(config, _charSpawner, store);
+        InputSynchronizerFactory inputSyncFactory = new(_inputRoot, myPeer, true);
 
         _charSelectService = new(playerRepos, _networkBridge);
         _charSelectService.ChangeState += OnChangingState;
 
-        _initService = new(playerRepos, spawnConfig, store, charFactory);
+        _initService = new(playerRepos, spawnConfig, store, charFactory, _networkBridge, inputSyncFactory);
         _initService.ChangeState += OnChangingState;
 
         _server.Init(playerRepos);
@@ -70,6 +81,7 @@ public partial class EntryPoint : Node
                 _initService.Run();
                 break;
             case Play:
+                _root.Update(new UpdateTick((float)delta, 0));
                 break;
         }
     }

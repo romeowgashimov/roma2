@@ -1,3 +1,5 @@
+using Friflo.Engine.ECS;
+using Friflo.Engine.ECS.Systems;
 using Godot;
 using ROMA2.Shared;
 
@@ -10,9 +12,23 @@ public partial class EntryPoint : Node
     [Export] private StartView _startView;
     [Export] private string _gameWorldScenePath = "res://Client/Scenes/game_world.tscn";
 
+    private EntityStore _store;
+    private SystemGroup _group;
+    private SystemRoot _root;
+
     public override void _Ready()
     {
-        WorldFactory factory = new(_bridge, this, _gameWorldScenePath);
+        _store = new();
+        _group = new("groups")
+        {
+            new InputSynchronizationSystem(_store)
+        };
+        _root = new(_store)
+        {
+            _group
+        };
+
+        WorldFactory factory = new(_bridge, this, _gameWorldScenePath, _store, _group);
         
         _client.Init(factory);
         _startView.Init();
@@ -20,6 +36,7 @@ public partial class EntryPoint : Node
 
     public override void _Process(double delta)
     {
+        _root.Update(new());
         
     }
 }

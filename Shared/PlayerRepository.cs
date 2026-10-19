@@ -15,7 +15,8 @@ public class PlayerRepository
     private Dictionary<long, TeamType> _teams = [];
 
     public int PlayersCount { get => _playersIds.Count; }
-
+    public required long MyPeer { get; init; }
+    
     public void AddPlayer(long peerId, TeamType team)
     {
         _playersIds.Add(peerId);
