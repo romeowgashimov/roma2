@@ -6,14 +6,21 @@ using ROMA2.Shared.Data;
 
 namespace ROMA2.Server.Logic.Core;
 
-public class MovementSystem : QuerySystem<CharacterReference, InputSynchronizerReference, MoveSpeed>
+public class MovementSystem : QuerySystem<
+        CharacterReference, 
+        InputSynchronizerReference, 
+        MoveSpeed, 
+        AnimationStateComponent>
 {
     // Гравитацию для 3D лучше приблизить к реальной (например, 9.8f или около того)
     private readonly float _gravity = 9.8f; 
 
     protected override void OnUpdate()
 {
-    Query.ForEachEntity((ref CharacterReference charRef, ref InputSynchronizerReference syncRef, ref MoveSpeed moveSpeed, Entity entity) =>
+    Query.ForEachEntity((ref CharacterReference charRef, 
+                         ref InputSynchronizerReference syncRef, 
+                         ref MoveSpeed moveSpeed, 
+                         ref AnimationStateComponent animState, Entity entity) =>
     {
         Character character = charRef.Value;
         InputSynchronizer sync = syncRef.Value;
@@ -26,7 +33,6 @@ public class MovementSystem : QuerySystem<CharacterReference, InputSynchronizerR
         // 2. Применяем гравитацию, если персонаж в воздухе
         if (!character.IsOnFloor())
         {
-            // Убедитесь, что у вас есть глобальный доступ к Delta времени сервера (например, через ваш класс Tick или GetProcessDeltaTime)
             float dt = (float)character.GetProcessDeltaTime(); 
             velocityY -= _gravity * dt; 
         }
@@ -61,6 +67,24 @@ public class MovementSystem : QuerySystem<CharacterReference, InputSynchronizerR
 
         // 4. Собираем итоговый вектор скорости (горизонтальная скорость + гравитация)
         character.Velocity = new Vector3(horizontalVelocity.X, velocityY, horizontalVelocity.Z);
+
+        character.NetworkPosition = character.Position;
+
+        // Проектируем направление на плоскость XZ (чтобы наклон камеры вверх/вниз не ломал вращение)
+        Vector2 direction2D = new Vector2(sync.MouseDirection.X, sync.MouseDirection.Z).Normalized();
+
+        // Находим абсолютный угол в радианах. 
+        // В Godot угол 0 смотрит по оси Vector3.Forward (обычно -Z), поэтому используем Mathf.Atan2
+        float targetRotationY = Mathf.Atan2(direction2D.X, direction2D.Y);
+
+        // Жестко перезаписываем вращение (без оператора +=)
+        Vector3 currentRotation = character.NetworkRotation;
+        currentRotation.Y = targetRotationY;
+        character.NetworkRotation = currentRotation;
+
+        if (character.Velocity.LengthSquared() >= 0.5)
+            animState.Current = AnimationState.Walk;
+
 
         // 5. Двигаем персонажа
         character.MoveAndSlide();

@@ -44,7 +44,9 @@ public partial class EntryPoint : Node
         EntityStore store = new();
         _root = new(store)
         {
-            new MovementSystem()
+            new AnimationStateResetSystem(),
+            new MovementSystem(),
+            new AnimationStateRegistrationSystem()
         };
 
         SpawnConfiguration spawnConfig = new(

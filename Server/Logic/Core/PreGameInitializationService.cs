@@ -65,7 +65,8 @@ public class PreGameInitializationService
                 new Team { Value = team },
                 new CharacterReference { Value = character },
                 new InputSynchronizerReference { Value = inputSync },
-                new MoveSpeed { Value = 5 });
+                new MoveSpeed { Value = 5 },
+                new AnimationStateComponent());
         }
 
         ChangeState?.Invoke(GameState.Play);

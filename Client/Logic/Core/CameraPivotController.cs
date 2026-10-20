@@ -1,9 +1,13 @@
 using Godot;
+using ROMA2.Shared.Data;
 
 namespace ROMA2.Client.Logic.Core;
 
 public partial class CameraPivotController : Node3D
 {
+    [Export] private Character _character;
+    [Export] private Vector3 _offset;
+
     [Export] public float MouseSensitivity = 0.002f;
     [Export] public float TwistInput; // Поворот влево/вправо (Y)
     [Export] public float PitchInput; // Поворот вверх/вниз (X)
@@ -15,6 +19,7 @@ public partial class CameraPivotController : Node3D
     public void Init()
     {
         Input.MouseMode = Input.MouseModeEnum.Captured;
+        TopLevel = true;
     }
 
     public override void _UnhandledInput(InputEvent @event)
@@ -35,6 +40,10 @@ public partial class CameraPivotController : Node3D
 
     public void Run()
     {
-        Rotation = new Vector3(PitchInput, TwistInput, Rotation.Z);
+        PitchInput = Mathf.Clamp(PitchInput, PitchMin, PitchMax);
+
+        Rotation = new Vector3(PitchInput, TwistInput, 0.0f);
+
+        Position = _character.Position + (Transform.Basis * _offset);
     }
 }

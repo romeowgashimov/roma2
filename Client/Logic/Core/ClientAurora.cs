@@ -8,6 +8,7 @@ public partial class ClientAurora : Aurora
 {
     [Export] private CameraPivotController _cameraPivotController;
     [Export] private Camera3D _camera;
+    [Export] private AnimationPlayer _animPlayer;
 
     public override void Init(EntityStore store)
     {
@@ -15,6 +16,13 @@ public partial class ClientAurora : Aurora
                 .GetUniqueEntity("MyPeer")
                 .GetComponent<PlayerPeer>()
                 .Value;
+
+        store
+            .CreateEntity(
+                new CharacterReference { Value = this }, 
+                new AnimationPlayerReference { Value = _animPlayer},
+                new AnimationStateComponent { Previous = AnimationState.Idle})
+            .AddTag<InterpolateTag>();
 
         // подумать, так как союзники должны иметь возможность смотреть за другими союзниками
         if (OwnerPeer != ownerPeer) return;

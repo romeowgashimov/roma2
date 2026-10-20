@@ -21,7 +21,9 @@ public partial class EntryPoint : Node
         _store = new();
         _group = new("groups")
         {
-            new InputSynchronizationSystem(_store)
+            new InputSynchronizationSystem(_store),
+            new TransformInterpolationSystem(),
+            new AnimationSystem()
         };
         _root = new(_store)
         {
