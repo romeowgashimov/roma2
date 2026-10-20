@@ -1,8 +1,15 @@
 using Friflo.Engine.ECS;
 using Friflo.Engine.ECS.Systems;
 using Godot;
-using ROMA2.Shared;
+using ROMA2.Client.Logic.Services;
+using ROMA2.Client.Logic.Systems;
+using ROMA2.Client.Logic.ViewModels;
+using ROMA2.Client.Logic.Views;
+using ROMA2.Shared.Characters;
+using ROMA2.Shared.Configurations;
 using ROMA2.Shared.Data;
+using ROMA2.Shared.Network;
+using ROMA2.Shared.Repositories;
 
 namespace ROMA2.Client.Logic.Core;
 
@@ -16,7 +23,7 @@ public partial class GameWorldEntryPoint : Node
     private EntityStore _store;
     private SystemGroup _group;
 
-    public void Init(NetworkBridge bridge, Network.Client client, EntityStore store, SystemGroup group)
+    public void Init(NetworkBridge bridge, Client client, EntityStore store, SystemGroup group)
     {
         _group = group;
         _store = store;

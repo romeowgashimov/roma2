@@ -6,3 +6,9 @@ public struct Team : IComponent
 {
     public TeamType Value;
 }
+
+public enum TeamType : byte
+{
+    FirstTeam,
+    SecondTeam
+}

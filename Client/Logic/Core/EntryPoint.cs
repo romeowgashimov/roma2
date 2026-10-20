@@ -1,14 +1,16 @@
 using Friflo.Engine.ECS;
 using Friflo.Engine.ECS.Systems;
 using Godot;
-using ROMA2.Shared;
+using ROMA2.Client.Logic.Systems;
+using ROMA2.Client.Logic.Views;
+using ROMA2.Shared.Network;
 
 namespace ROMA2.Client.Logic.Core;
 
 public partial class EntryPoint : Node
 {
     [Export] private NetworkBridge _bridge;
-    [Export] private Network.Client _client;
+    [Export] private Client _client;
     [Export] private StartView _startView;
     [Export] private string _gameWorldScenePath = "res://Client/Scenes/game_world.tscn";
 

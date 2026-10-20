@@ -1,0 +1,67 @@
+using System;
+using Godot;
+using ROMA2.Shared.Network;
+using static Godot.GD;
+
+namespace ROMA2.Client.Logic.Core;
+
+public partial class Client : Node
+{
+    [Export] private string _serverIp = "127.0.0.1";
+    [Export] private int _serverPort = 7070;
+    [Export] private NetworkBridge _networkBridge;
+    
+    private WorldFactory _factory;
+
+    public Action SuccessfulConnection;
+
+    // Сделать очистку событий
+    public void Init(WorldFactory factory)
+    {
+        _factory = factory;
+
+        Multiplayer.ConnectedToServer += OnConnectedToServer;
+        Multiplayer.ConnectionFailed += OnConnectionFailed;
+
+        if (_networkBridge != null)
+            _networkBridge.ApproveJoin += OnApprovedJoin;
+    }
+
+    public void OnConnecting()
+    {
+        Print($"Попытка подключения к серверу...");
+
+        ENetMultiplayerPeer peer = new();
+        Error error = peer.CreateClient(_serverIp, _serverPort);
+
+        if (error != Error.Ok)
+        {
+            PrintErr($"Ошибка инициализации сети: {error}");
+            return;
+        }
+
+        Multiplayer.MultiplayerPeer = peer;
+    }
+
+    private void OnConnectedToServer()
+    {
+        Print($"Соединение установлено. Отправка запроса на вход...");
+
+        _networkBridge.Rpc(nameof(_networkBridge.OnRequestingJoin));
+    }
+
+    private void OnConnectionFailed()
+    {
+        PrintErr($"Не удалось подключиться к серверу.");
+        
+        Multiplayer.MultiplayerPeer = null;
+    }
+
+    private void OnApprovedJoin()
+    {
+        if (_factory.TryCreate(this, out var _))
+            SuccessfulConnection?.Invoke();
+        else 
+            PrintErr($"{nameof(Client)} Ошибка создания игрового мира");
+    }
+}

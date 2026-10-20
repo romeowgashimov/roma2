@@ -3,6 +3,7 @@ using static Godot.GD;
 using ROMA2.Shared;
 using Friflo.Engine.ECS;
 using Friflo.Engine.ECS.Systems;
+using ROMA2.Shared.Network;
 
 namespace ROMA2.Client.Logic.Core;
 
@@ -23,7 +24,7 @@ public class WorldFactory
         _gameWorldPath = gameWorldPath;
     }
 
-    public bool TryCreate(Network.Client client, out GameWorldEntryPoint gameWorld)
+    public bool TryCreate(Client client, out GameWorldEntryPoint gameWorld)
     {
         var gameWorldScene = Load<PackedScene>(_gameWorldPath);
 

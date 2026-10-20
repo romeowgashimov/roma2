@@ -1,8 +1,12 @@
 using Friflo.Engine.ECS;
 using Friflo.Engine.ECS.Systems;
 using Godot;
-using ROMA2.Shared;
-using ROMA2.Shared.Data;
+using ROMA2.Server.Logic.Services;
+using ROMA2.Server.Logic.Systems;
+using ROMA2.Shared.Characters;
+using ROMA2.Shared.Configurations;
+using ROMA2.Shared.Network;
+using ROMA2.Shared.Repositories;
 using static Godot.GD;
 using static ROMA2.Server.Logic.Core.GameState;
 
@@ -12,7 +16,7 @@ public partial class EntryPoint : Node
 {
     [ExportGroup("Network")]
     [Export] private NetworkBridge _networkBridge;
-    [Export] private Network.Server _server;
+    [Export] private Server _server;
     [Export] private GameState _state = WaitPlayers;
 
     [ExportGroup("Character Factory")]
