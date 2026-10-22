@@ -70,7 +70,9 @@ public class PreGameInitializationService
                 new CharacterReference { Value = character },
                 new InputSynchronizerReference { Value = inputSync },
                 new MoveSpeed { Value = 5 },
-                new AnimationStateComponent());
+                new AnimationStateComponent(),
+                new MaxHealth { Value = 1000 },
+                new CurrentHealth { Value = 1000});
         }
 
         ChangeState?.Invoke(GameState.Play);

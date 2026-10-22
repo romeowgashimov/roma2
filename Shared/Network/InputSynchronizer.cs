@@ -19,9 +19,10 @@ public partial class InputSynchronizer : Node
     public bool IsKey2Pressed => (ActionButtonsMask & (1 << 2)) != 0;
     public bool IsKey3Pressed => (ActionButtonsMask & (1 << 3)) != 0;
     public bool IsKey4Pressed => (ActionButtonsMask & (1 << 4)) != 0;
+    public bool IsJumped => (ActionButtonsMask & (1 << 5)) != 0;
 
     // Метод для записи ввода на стороне клиента
-    public void SetButtons(bool isPressed, bool k1, bool k2, bool k3, bool k4)
+    public void SetButtons(bool isPressed, bool k1, bool k2, bool k3, bool k4, bool jump)
     {
         int mask = 0;
         if (isPressed) mask |= 1 << 0;
@@ -29,6 +30,7 @@ public partial class InputSynchronizer : Node
         if (k2)        mask |= 1 << 2;
         if (k3)        mask |= 1 << 3;
         if (k4)        mask |= 1 << 4;
+        if (jump)      mask |= 1 << 5;
         ActionButtonsMask = mask;
     }
 }

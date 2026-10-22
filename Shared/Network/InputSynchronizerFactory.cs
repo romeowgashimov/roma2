@@ -1,4 +1,3 @@
-using System;
 using Godot;
 
 namespace ROMA2.Shared.Network;
@@ -9,8 +8,6 @@ public class InputSynchronizerFactory
     private Node _root;
     private long _myPeer;
     private bool _isServer;
-
-    public event Action<InputSynchronizer> InputSyncCreated;
 
     public InputSynchronizerFactory(Node root, long myPeer, bool isServer)
     {
@@ -29,7 +26,7 @@ public class InputSynchronizerFactory
         return Spawn(default);
     }
 
-    private InputSynchronizer Spawn(long peer)
+    protected virtual InputSynchronizer Spawn(long peer)
     {
         var inputSync = GD.Load<PackedScene>(_path).Instantiate<InputSynchronizer>();
 
@@ -45,8 +42,6 @@ public class InputSynchronizerFactory
 
         sync.PublicVisibility = false;
         sync.SetVisibilityFor(1, true);
-
-        InputSyncCreated?.Invoke(inputSync);
 
         return inputSync;
     }

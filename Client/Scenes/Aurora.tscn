@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://d1mq0o6pgpqva"]
 
-[ext_resource type="Script" uid="uid://cqlqyaqmlnrqh" path="res://Client/Logic/Core/ClientAurora.cs" id="1_dex8m"]
+[ext_resource type="Script" uid="uid://cqlqyaqmlnrqh" path="res://Client/Logic/Characters/ClientAurora.cs" id="1_dex8m"]
 [ext_resource type="PackedScene" uid="uid://bmv4j3roqm52w" path="res://Client/Scenes/gwen.tscn" id="2_p5xcm"]
-[ext_resource type="Script" uid="uid://cjkfcnymdw3o4" path="res://Client/Logic/Core/CameraPivotController.cs" id="3_bxruq"]
+[ext_resource type="Script" uid="uid://cjkfcnymdw3o4" path="res://Client/Logic/Controllers/CameraPivotController.cs" id="3_bxruq"]
 [ext_resource type="Texture2D" uid="uid://bvxy7ljktkax4" path="res://icon.svg" id="4_p5xcm"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_dex8m"]
@@ -18,16 +18,17 @@ properties/2/replication_mode = 2
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_esjn7"]
 
-[node name="Aurora" type="CharacterBody3D" unique_id=2026109021 node_paths=PackedStringArray("_cameraPivotController", "_camera", "_animPlayer")]
+[node name="Aurora" type="CharacterBody3D" unique_id=2026109021 node_paths=PackedStringArray("Camera", "PivotController", "AnimationPlayer", "Character")]
 script = ExtResource("1_dex8m")
-_cameraPivotController = NodePath("CameraPivot")
-_camera = NodePath("CameraPivot/Camera3D")
-_animPlayer = NodePath("gwen/AnimationPlayer")
+Camera = NodePath("CameraPivot/Camera3D")
+PivotController = NodePath("CameraPivot")
+AnimationPlayer = NodePath("gwen/AnimationPlayer")
+Character = NodePath(".")
 
 [node name="gwen" parent="." unique_id=211063879 instance=ExtResource("2_p5xcm")]
 transform = Transform3D(0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01, 0, -0.9, 0)
 
-[node name="Skeleton3D" parent="gwen/Skeleton" parent_id_path=PackedInt32Array(211063879, 130997478) index="0" unique_id=423429596]
+[node name="Skeleton3D" parent="gwen/Skeleton" parent_id_path=PackedInt32Array(211063879, 1670140624) index="0" unique_id=1552449340]
 bones/11/position = Vector3(4.9714503, 83.183304, -25.685572)
 bones/11/rotation = Quaternion(0.15625966, 0.47594348, 0.20649754, -0.84048766)
 bones/11/scale = Vector3(0.95, 0.95, 0.95)
@@ -112,7 +113,7 @@ bones/139/rotation = Quaternion(-0.49130833, -0.7678612, -0.15272053, 0.38168275
 bones/140/position = Vector3(-5.131119, 93.02989, -20.48426)
 bones/140/rotation = Quaternion(0.43697035, -0.10455437, -0.79282725, 0.411765)
 
-[node name="AnimationPlayer" parent="gwen" index="1" unique_id=1055607543]
+[node name="AnimationPlayer" parent="gwen" index="1" unique_id=524386688]
 autoplay = &"Idle_anm"
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=267541334]

@@ -1,7 +1,7 @@
 using Godot;
 using ROMA2.Shared.Characters;
 
-namespace ROMA2.Client.Logic.Services;
+namespace ROMA2.Client.Logic.Controllers;
 
 public partial class CameraPivotController : Node3D
 {

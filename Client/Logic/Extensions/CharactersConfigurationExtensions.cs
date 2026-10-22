@@ -1,6 +1,6 @@
 using ROMA2.Shared.Configurations;
 
-namespace ROMA2.Client.Logic.Services;
+namespace ROMA2.Client.Logic.Extensions;
 
 public static class CharactersConfigurationExtensions
 {

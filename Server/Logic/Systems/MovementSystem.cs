@@ -15,6 +15,7 @@ public class MovementSystem : QuerySystem<
 {
     // Гравитацию для 3D лучше приблизить к реальной (например, 9.8f или около того)
     private readonly float _gravity = 9.8f; 
+    private readonly float _jumpVelocity = 4.5f;
 
     protected override void OnUpdate()
 {
@@ -37,9 +38,16 @@ public class MovementSystem : QuerySystem<
             float dt = (float)character.GetProcessDeltaTime(); 
             velocityY -= _gravity * dt; 
         }
-        else if (velocityY < 0)
+        else 
         {
-            velocityY = 0; // Сбрасываем накопленную гравитацию на земле
+            if (velocityY < 0)
+            {
+                velocityY = 0; // Сбрасываем накопленную гравитацию на земле
+            }
+            if (sync.IsJumped) 
+            {
+                velocityY = _jumpVelocity;
+            }
         }
 
         // --- 3. РАСЧЕТ НАПРАВЛЕНИЯ ДВИЖЕНИЯ В СТИЛЕ DEADLOCK ---

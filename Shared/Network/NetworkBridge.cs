@@ -4,7 +4,7 @@ using Godot.Collections;
 
 namespace ROMA2.Shared.Network;
 
-public partial class NetworkBridge : Node
+public sealed partial class NetworkBridge : Node
 {
     public event Action<long> RequestJoin;
     public event Action ApproveJoin;

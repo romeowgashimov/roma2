@@ -43,23 +43,17 @@ public partial class GameWorldEntryPoint : Node
         _charSelectView.Init(charSelectViewModel);
 
         CharacterFactory charFactory = new(charConfig, _charSpawner, _store);
-        InputSynchronizerFactory inputSyncFactory = new(_inputRoot, myPeer, false);
+        ClientInputSyncFactory inputSyncFactory = new(_inputRoot, myPeer, false, _store);
 
         _bridge.InputSyncCreation += inputSyncFactory.Create;
 
-        inputSyncFactory.InputSyncCreated += AddSynchronizer;
-
         _bridge.CharacterSelectionApproved += UnSubscribe;
-        void UnSubscribe(long _, int __)
+        void UnSubscribe(long peer, int characterId)
         {
+            if (myPeer != peer) return;
+            
             _charSelectView.QueueFree();
             _bridge.CharacterSelectionApproved -= UnSubscribe;
         }
-    }
-
-    public void AddSynchronizer(InputSynchronizer sync)
-    {
-        Entity entity = _store.CreateEntity();
-        entity.AddComponent(new InputSynchronizerReference { Value = sync });
     }
 }

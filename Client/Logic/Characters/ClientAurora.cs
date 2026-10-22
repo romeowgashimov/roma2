@@ -1,39 +1,20 @@
 using Friflo.Engine.ECS;
 using Godot;
-using ROMA2.Client.Logic.Data;
-using ROMA2.Client.Logic.Services;
+using ROMA2.Client.Logic.Controllers;
+using ROMA2.Client.Logic.Interfaces;
 using ROMA2.Shared.Characters;
-using ROMA2.Shared.Data;
 
 namespace ROMA2.Client.Logic.Characters;
 
-public partial class ClientAurora : Aurora
+public partial class ClientAurora : Aurora, IClientPlayerCharacter
 {
-    [Export] private CameraPivotController _cameraPivotController;
-    [Export] private Camera3D _camera;
-    [Export] private AnimationPlayer _animPlayer;
+    [Export] public Camera3D Camera { get; set; }
+    [Export] public CameraPivotController PivotController { get; set; }
+    [Export] public AnimationPlayer AnimationPlayer { get; set; }
+    [Export] public Character Character { get; set; }
 
     public override void Init(EntityStore store)
     {
-        long ownerPeer = store
-                .GetUniqueEntity("MyPeer")
-                .GetComponent<PlayerPeer>()
-                .Value;
-
-        store
-            .CreateEntity(
-                new CharacterReference { Value = this }, 
-                new AnimationPlayerReference { Value = _animPlayer},
-                new AnimationStateComponent { Previous = AnimationState.Idle})
-            .AddTag<InterpolateTag>();
-
-        // подумать, так как союзники должны иметь возможность смотреть за другими союзниками
-        if (OwnerPeer != ownerPeer) return;
-
-        store.CreateEntity(new CameraReference { Value = _camera }, new UniqueEntity("Camera"));
-        store.CreateEntity(new CameraPivotControllerReference { Value = _cameraPivotController }, new UniqueEntity("CameraController"));
-        _cameraPivotController.Init();
-
-        _camera.Current = true;
+        ((IClientPlayerCharacter)this).InitClient(store);
     }
 }

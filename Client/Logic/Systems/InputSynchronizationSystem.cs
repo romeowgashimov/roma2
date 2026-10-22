@@ -12,16 +12,14 @@ public class InputSynchronizationSystem(EntityStore store) : QuerySystem<InputSy
 
     protected override void OnUpdate()
     {
-        
-        
-        /*bool isPressed = Input.IsActionPressed("action_fire");
-        bool k1 = Input.IsActionPressed("action_key1");
-        bool k2 = Input.IsActionPressed("action_key2");
-        bool k3 = Input.IsActionPressed("action_key3");
-        bool k4 = Input.IsActionPressed("action_key4");*/
- 
         Query.ForEachEntity((ref InputSynchronizerReference syncRef, Entity entity) =>
         {
+            bool isJumpPressed = Input.IsActionJustPressed("action_jump");
+            bool isPressed = Input.IsActionPressed("action_fire");
+            bool k1 = Input.IsActionPressed("action_key1");
+            bool k2 = Input.IsActionPressed("action_key2");
+            bool k3 = Input.IsActionPressed("action_key3");
+            bool k4 = Input.IsActionPressed("action_key4");
             Vector2 wasd = Input.GetVector("move_left", "move_right", "move_up", "move_down");
             Vector3 mouseDir = GetMouseDirectionIn3D();
             
@@ -32,7 +30,7 @@ public class InputSynchronizationSystem(EntityStore store) : QuerySystem<InputSy
                 return;
 
             syncNode.WasdDirection = wasd;
-            //syncNode.SetButtons(isPressed, k1, k2, k3, k4);
+            syncNode.SetButtons(isPressed, k1, k2, k3, k4, isJumpPressed);
             syncNode.MouseDirection = mouseDir;
         });
     }

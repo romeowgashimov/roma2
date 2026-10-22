@@ -54,11 +54,11 @@ public class CharacterSelectionService
     public void OnCharacterSelected(long playerPeer, int characterId)
     {
         // Мы не проверяем порядок выбора, если первый выбирает, то выбрать может и второй
-        if (_playerRepos.IsCharacterTaken(playerPeer, characterId))
+        /*if (_playerRepos.IsCharacterTaken(playerPeer, characterId))
         {
             _bridge.Rpc(nameof(_bridge.OnCharacterSelectionCanceled), playerPeer, true);
             return;
-        }
+        }*/
 
         _playerRepos.TryAddCharacterId(playerPeer, characterId);
         //Когда мы выбрали персонажа, нужно дать выбор другому игроку

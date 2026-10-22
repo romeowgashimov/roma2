@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cbxgtmqgj61nd"]
 
-[ext_resource type="Script" uid="uid://c3pyf7l28kx3g" path="res://Server/Logic/Core/ServerAurora.cs" id="1_ht7mm"]
+[ext_resource type="Script" uid="uid://c3pyf7l28kx3g" path="res://Server/Logic/Characters/ServerAurora.cs" id="1_ht7mm"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_esjn7"]
 
