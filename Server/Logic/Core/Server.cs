@@ -1,5 +1,6 @@
 using System;
 using Godot;
+using ROMA2.Shared.Data;
 using ROMA2.Shared.Network;
 using ROMA2.Shared.Repositories;
 using static Godot.GD;
@@ -47,8 +48,9 @@ public partial class Server : Node
             return;
         }
 
-        //Пока все будут в первой команде
-        _playerRepos.AddPlayer(senderId, Shared.Data.TeamType.FirstTeam);
+        // Тесты
+        TeamType team = _playerRepos.PlayersCount == 0 ? TeamType.FirstTeam : TeamType.SecondTeam;
+        _playerRepos.AddPlayer(senderId, team);
 
         _networkBridge.RpcId(senderId, nameof(_networkBridge.OnApprovedJoin));
 

@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://oxs3jmcrckkn"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_esjn7"]
+
+[node name="AuroraRangedAttack" type="RigidBody3D" unique_id=2046310026]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=870488792]
+shape = SubResource("SphereShape3D_esjn7")

@@ -16,14 +16,12 @@ _fSecondPosition = Vector3(2, 1.5, 2)
 
 [node name="Server" type="Node" parent="." unique_id=82617968 node_paths=PackedStringArray("_networkBridge")]
 script = ExtResource("2_cimub")
+_requiredPlayers = 2
 _networkBridge = NodePath("../NetworkBridge")
 
 [node name="NetworkBridge" type="Node" parent="." unique_id=221906756]
 script = ExtResource("1_gobsh")
 
 [node name="GameWorld" parent="." unique_id=201020837 instance=ExtResource("4_6qy8l")]
-
-[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="." unique_id=147891046]
-spawn_path = NodePath("..")
 
 [editable path="GameWorld"]
