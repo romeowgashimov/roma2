@@ -1,7 +1,7 @@
 using System;
 using Godot;
 using Godot.Collections;
-
+using ROMA2.Shared.Projectiles;
 namespace ROMA2.Shared.Network;
 
 public sealed partial class NetworkBridge : Node
@@ -15,6 +15,8 @@ public sealed partial class NetworkBridge : Node
     public event Action<long, int> CharacterSelectionApproved;
     public event Func<InputSynchronizer> InputSyncCreation;
     public event Action<long> InputSyncCreationSuccess;
+    public event Func<byte[], Projectile> ProjectileCreated;
+    public event Action<int> ProjectileDeleted;
 
     public override void _Notification(int what)
     {
@@ -80,5 +82,17 @@ public sealed partial class NetworkBridge : Node
     {
         long senderId = Multiplayer.GetRemoteSenderId();
         InputSyncCreationSuccess?.Invoke(senderId);
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    public void OnProjectileCreated(byte[] bytes)
+    {
+        ProjectileCreated?.Invoke(bytes);
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    public void OnProjectileDeleted(int localId)
+    {
+        ProjectileDeleted?.Invoke(localId);
     }
 }

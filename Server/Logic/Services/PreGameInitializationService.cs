@@ -64,7 +64,7 @@ public class PreGameInitializationService
             var inputSync = _inputSyncFactory.Create(peer);
             _bridge.RpcId(peer, nameof(_bridge.OnInputSynchronizerCreation));
 
-            var playerEntity = _store.CreateEntity(
+            /*var playerEntity = _store.CreateEntity(
                 new PlayerPeer { Value = peer },
                 new Team { Value = team },
                 new CharacterReference { Value = character },
@@ -73,6 +73,15 @@ public class PreGameInitializationService
                 new AnimationStateComponent(),
                 new MaxHealth { Value = 1000 },
                 new CurrentHealth { Value = 1000});
+*/
+                character.Entity.AddComponent(new PlayerPeer { Value = peer });
+                character.Entity.AddComponent(new Team { Value = team });
+                character.Entity.AddComponent(new CharacterReference { Value = character });
+                character.Entity.AddComponent(new InputSynchronizerReference { Value = inputSync });
+                character.Entity.AddComponent(new MoveSpeed { Value = 5 });
+                character.Entity.AddComponent(new AnimationStateComponent());
+                character.Entity.AddComponent(new MaxHealth { Value = 1000 });
+                character.Entity.AddComponent(new CurrentHealth { Value = 1000 });
         }
 
         ChangeState?.Invoke(GameState.Play);

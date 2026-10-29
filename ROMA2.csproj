@@ -7,5 +7,8 @@
   <ItemGroup>
     <PackageReference Include="Friflo.Engine.ECS" Version="3.6.0" />
     <PackageReference Include="MemoryPack" Version="1.21.4" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.14" />
+    <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="10.0.14" />
+    <PackageReference Include="System.Reactive" Version="7.0.0" />
   </ItemGroup>
 </Project>

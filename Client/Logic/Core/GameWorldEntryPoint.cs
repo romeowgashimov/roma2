@@ -1,6 +1,7 @@
 using Friflo.Engine.ECS;
 using Friflo.Engine.ECS.Systems;
 using Godot;
+using ROMA2.Client.Logic.Projectiles;
 using ROMA2.Client.Logic.Services;
 using ROMA2.Client.Logic.Systems;
 using ROMA2.Client.Logic.ViewModels;
@@ -9,6 +10,7 @@ using ROMA2.Shared.Characters;
 using ROMA2.Shared.Configurations;
 using ROMA2.Shared.Data;
 using ROMA2.Shared.Network;
+using ROMA2.Shared.Projectiles;
 using ROMA2.Shared.Repositories;
 
 namespace ROMA2.Client.Logic.Core;
@@ -18,6 +20,7 @@ public partial class GameWorldEntryPoint : Node
     [Export] private CharacterSelectionView _charSelectView;
     [Export] private MultiplayerSpawner _charSpawner;
     [Export] private Node _inputRoot;
+    [Export] private Node _projectileRoot;
     
     private NetworkBridge _bridge;
     private EntityStore _store;
@@ -44,6 +47,10 @@ public partial class GameWorldEntryPoint : Node
 
         CharacterFactory charFactory = new(charConfig, _charSpawner, _store);
         ClientInputSyncFactory inputSyncFactory = new(_inputRoot, myPeer, false, _store);
+
+        ProjectilesConfiguration projConfig = new(false);
+        ProjectileRepository rep = new();
+        ClientProjectileFactory projFactory = new(projConfig, store, bridge, _projectileRoot, rep);
 
         _bridge.InputSyncCreation += inputSyncFactory.Create;
 

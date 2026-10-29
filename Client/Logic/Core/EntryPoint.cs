@@ -25,7 +25,7 @@ public partial class EntryPoint : Node
         {
             new InputSynchronizationSystem(_store),
             new TransformInterpolationSystem(),
-            new AnimationSystem()
+            new AnimationSystem(),
         };
         _root = new(_store)
         {
@@ -41,6 +41,5 @@ public partial class EntryPoint : Node
     public override void _Process(double delta)
     {
         _root.Update(new());
-        
     }
 }

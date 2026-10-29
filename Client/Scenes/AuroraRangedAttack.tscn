@@ -1,0 +1,31 @@
+[gd_scene format=3 uid="uid://dm80ld44yxrrq"]
+
+[ext_resource type="Script" uid="uid://bqt4flouwm5lx" path="res://Client/Logic/Projectiles/ClientAuroraRangedAttack.cs" id="1_rxy3r"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_esjn7"]
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_5nbg6"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+properties/1/path = NodePath(".:rotation")
+properties/1/spawn = true
+properties/1/replication_mode = 1
+properties/2/path = NodePath(".:IsPooled")
+properties/2/spawn = false
+properties/2/replication_mode = 2
+
+[sub_resource type="SphereMesh" id="SphereMesh_esjn7"]
+
+[node name="AuroraRangedAttack" type="RigidBody3D" unique_id=1505751009 node_paths=PackedStringArray("Sync")]
+script = ExtResource("1_rxy3r")
+Sync = NodePath("MultiplayerSynchronizer")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1105083533]
+shape = SubResource("SphereShape3D_esjn7")
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=1416991281]
+replication_config = SubResource("SceneReplicationConfig_5nbg6")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1575650117]
+mesh = SubResource("SphereMesh_esjn7")

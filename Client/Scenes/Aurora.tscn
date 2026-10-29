@@ -28,7 +28,7 @@ Character = NodePath(".")
 [node name="gwen" parent="." unique_id=211063879 instance=ExtResource("2_p5xcm")]
 transform = Transform3D(0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01, 0, -0.9, 0)
 
-[node name="Skeleton3D" parent="gwen/Skeleton" parent_id_path=PackedInt32Array(211063879, 1670140624) index="0" unique_id=1552449340]
+[node name="Skeleton3D" parent="gwen/Skeleton" parent_id_path=PackedInt32Array(211063879, 1299140587) index="0" unique_id=1770071599]
 bones/11/position = Vector3(4.9714503, 83.183304, -25.685572)
 bones/11/rotation = Quaternion(0.15625966, 0.47594348, 0.20649754, -0.84048766)
 bones/11/scale = Vector3(0.95, 0.95, 0.95)
@@ -113,7 +113,7 @@ bones/139/rotation = Quaternion(-0.49130833, -0.7678612, -0.15272053, 0.38168275
 bones/140/position = Vector3(-5.131119, 93.02989, -20.48426)
 bones/140/rotation = Quaternion(0.43697035, -0.10455437, -0.79282725, 0.411765)
 
-[node name="AnimationPlayer" parent="gwen" index="1" unique_id=524386688]
+[node name="AnimationPlayer" parent="gwen" index="1" unique_id=1781910266]
 autoplay = &"Idle_anm"
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=267541334]

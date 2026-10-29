@@ -1,6 +1,7 @@
 using Friflo.Engine.ECS;
 using Friflo.Engine.ECS.Systems;
 using Godot;
+using ROMA2.Server.Logic.Projectiles;
 using ROMA2.Server.Logic.Services;
 using ROMA2.Server.Logic.Systems;
 using ROMA2.Shared.Characters;
@@ -21,7 +22,10 @@ public partial class EntryPoint : Node
 
     [ExportGroup("Character Factory")]
     [Export] private MultiplayerSpawner _charSpawner;
-    [Export]private Node _inputRoot;
+    [Export] private Node _inputRoot;
+
+    [ExportGroup("Projectile Factory")]
+    [Export] private Node _parentRoot;
 
     [ExportGroup("Spawn Configuration", "pref")]
     [ExportSubgroup("First Team")]
@@ -46,12 +50,6 @@ public partial class EntryPoint : Node
     public override void _Ready()
     {
         EntityStore store = new();
-        _root = new(store)
-        {
-            new AnimationStateResetSystem(),
-            new MovementSystem(),
-            new AnimationStateRegistrationSystem()
-        };
 
         SpawnConfiguration spawnConfig = new(
             [_fFirstPosition, _fSecondPosition, _fThirdPosition, _fFourthPosition, _fFifthPosition], 
@@ -61,7 +59,19 @@ public partial class EntryPoint : Node
         CharactersConfiguration config = new(isServer: true);
         CharacterFactory charFactory = new(config, _charSpawner, store);
         InputSynchronizerFactory inputSyncFactory = new(_inputRoot, myPeer, true);
+        ProjectilesConfiguration projConfig = new(true);
+        ProjectileRepository rep = new();
+        ServerProjectileFactory projFactory = new(projConfig, store, _networkBridge, _parentRoot, rep);
 
+        _root = new(store)
+        {
+            new AnimationStateResetSystem(),
+            new MovementSystem(),
+            new AnimationStateRegistrationSystem(),
+            new RangedAttackSpawnSystem(projFactory),
+            new RangedAttackDespawnSystem(),
+            new RangedAttackDestroySystem(projFactory)
+        };
         _charSelectService = new(playerRepos, _networkBridge);
         _charSelectService.ChangeState += OnChangingState;
 
