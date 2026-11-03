@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://cqlqyaqmlnrqh" path="res://Client/Logic/Characters/ClientAurora.cs" id="1_dex8m"]
 [ext_resource type="PackedScene" uid="uid://bmv4j3roqm52w" path="res://Client/Scenes/gwen.tscn" id="2_p5xcm"]
-[ext_resource type="Script" uid="uid://cjkfcnymdw3o4" path="res://Client/Logic/Controllers/CameraPivotController.cs" id="3_bxruq"]
+[ext_resource type="Script" uid="uid://cjkfcnymdw3o4" path="res://Client/Logic/Controllers/CameraPivotController.cs" id="3_p5xcm"]
 [ext_resource type="Texture2D" uid="uid://bvxy7ljktkax4" path="res://icon.svg" id="4_p5xcm"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_dex8m"]
@@ -122,12 +122,13 @@ replication_config = SubResource("SceneReplicationConfig_dex8m")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1095220323]
 shape = SubResource("CapsuleShape3D_esjn7")
 
-[node name="CameraPivot" type="Node3D" parent="." unique_id=1623645113 node_paths=PackedStringArray("_character")]
+[node name="CameraPivot" type="Node3D" parent="." unique_id=1623645113 node_paths=PackedStringArray("_character", "Camera")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3970591, 0.943378, 0)
 top_level = true
-script = ExtResource("3_bxruq")
+script = ExtResource("3_p5xcm")
 _character = NodePath("..")
-_offset = Vector3(-0.4, 1, 0)
+_offset = Vector3(-0.25, 1, 0)
+Camera = NodePath("Camera3D")
 
 [node name="Camera3D" type="Camera3D" parent="CameraPivot" unique_id=1027670830]
 transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 0, -0.10833526, -1.7385613)

@@ -14,8 +14,7 @@ public partial class ServerAurora : Aurora
     public override void Init(EntityStore store)
     {
         Entity = store.CreateEntity();
-        Entity.AddComponent(new RangedAttackId { Value = ProjectilesConfiguration.GetProjectileId(typeof(AuroraRangedAttack)) });
-        GD.Print(ProjectilesConfiguration.GetProjectileId(typeof(AuroraRangedAttack)));
+        Entity.AddComponent(new RangedAttackGlobalId { Value = ProjectilesConfiguration.GetProjectileId(typeof(AuroraRangedAttack)) });
         Entity.AddComponent(new RangedAttackCooldown { Cooldown = _rangedAttackCooldown, CurrentTime = _rangedAttackCooldown });
 
 

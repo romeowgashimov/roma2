@@ -10,5 +10,7 @@ public struct Team : IComponent
 public enum TeamType : byte
 {
     FirstTeam,
-    SecondTeam
+    SecondTeam,
+
+    Unknown
 }

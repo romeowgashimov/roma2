@@ -16,7 +16,6 @@ public class RangedAttackDespawnSystem : QuerySystem<ProjectileProperties>
     {
         Query.ForEachEntity((ref ProjectileProperties properties, Entity entity) =>
         {
-            GD.Print(properties.CurrentTime);
             if (properties.DestroyDelay <= properties.CurrentTime)
             {
                 CommandBuffer.AddTag<DestroyProjectileTag>(entity.Id);

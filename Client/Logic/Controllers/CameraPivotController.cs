@@ -1,3 +1,4 @@
+using Friflo.Engine.ECS;
 using Godot;
 using ROMA2.Shared.Characters;
 
@@ -8,6 +9,8 @@ public partial class CameraPivotController : Node3D
     [Export] private Character _character;
     [Export] private Vector3 _offset;
 
+    [Export] public Camera3D Camera;
+
     [Export] public float MouseSensitivity = 0.002f;
     [Export] public float TwistInput; // Поворот влево/вправо (Y)
     [Export] public float PitchInput; // Поворот вверх/вниз (X)
@@ -15,6 +18,8 @@ public partial class CameraPivotController : Node3D
     // Ограничения для камеры по вертикали (в радианах)
     [Export] public float PitchMin = -Mathf.Pi / 3; // ~ -60 градусов
     [Export] public float PitchMax = Mathf.Pi / 4;  // ~ 45 градусов
+
+    public Entity Entity;
 
     public void Init()
     {
@@ -29,7 +34,7 @@ public partial class CameraPivotController : Node3D
             TwistInput -= mouseMotion.Relative.X * MouseSensitivity;
             PitchInput += mouseMotion.Relative.Y * MouseSensitivity;
         }
-
+        
         if (@event.IsActionPressed("ui_cancel"))
         {
             Input.MouseMode = Input.MouseMode == Input.MouseModeEnum.Captured 
@@ -46,4 +51,13 @@ public partial class CameraPivotController : Node3D
 
         Position = _character.Position + (Transform.Basis * _offset);
     }
+
+    public void Run(Vector3 mouseDirection)
+    {
+        Position = _character.Position + (Transform.Basis * _offset);
+
+        Basis targetBasis = Basis.LookingAt(mouseDirection, Vector3.Up);
+
+        Rotation = targetBasis.GetEuler();
+    } 
 }

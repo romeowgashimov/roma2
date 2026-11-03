@@ -1,6 +1,9 @@
 using System;
 using Godot;
+using Godot.Collections;
+using ROMA2.Shared.Data;
 using ROMA2.Shared.Network;
+using ROMA2.Shared.Repositories;
 using static Godot.GD;
 
 namespace ROMA2.Client.Logic.Core;
@@ -12,6 +15,7 @@ public partial class Client : Node
     [Export] private NetworkBridge _networkBridge;
     
     private WorldFactory _factory;
+    private PlayerRepository _playerRepository;
 
     public Action SuccessfulConnection;
 
@@ -24,7 +28,10 @@ public partial class Client : Node
         Multiplayer.ConnectionFailed += OnConnectionFailed;
 
         if (_networkBridge != null)
+        {
             _networkBridge.ApproveJoin += OnApprovedJoin;
+            _networkBridge.AllPlayersConnected += OnAllPlayersConnected;
+        }
     }
 
     public void OnConnecting()
@@ -59,9 +66,23 @@ public partial class Client : Node
 
     private void OnApprovedJoin()
     {
-        if (_factory.TryCreate(this, out var _))
+        _playerRepository = new() { MyPeer = Multiplayer.GetUniqueId() };
+
+        if (_factory.TryCreate(this, _playerRepository, out var _))
             SuccessfulConnection?.Invoke();
         else 
             PrintErr($"{nameof(Client)} Ошибка создания игрового мира");
+    }
+
+    private void OnAllPlayersConnected(Dictionary data)
+    {
+        TeamType team = TeamType.FirstTeam;
+        // 2 для тестов
+        for (int i = 0; i < 2; ++i) 
+            _playerRepository.AddPlayer((int)data[i], team);
+        // 0 тоже для тестов
+        team = TeamType.SecondTeam;
+        for (int i = 2; i < 0; ++i)
+            _playerRepository.AddPlayer((int)data[i], team);
     }
 }

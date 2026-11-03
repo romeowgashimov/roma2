@@ -1,4 +1,5 @@
 using Godot;
+using ROMA2.Shared.Repositories;
 
 namespace ROMA2.Shared.Network;
 
@@ -6,14 +7,12 @@ public class InputSynchronizerFactory
 {
     private string _path = "res://Shared/Network/InputSynchronizer.tscn";
     private Node _root;
-    private long _myPeer;
-    private bool _isServer;
+    private InputSynchronizerRepository _syncRepository;
 
-    public InputSynchronizerFactory(Node root, long myPeer, bool isServer)
+    public InputSynchronizerFactory(Node root, InputSynchronizerRepository syncRepository)
     {
         _root = root;
-        _myPeer = myPeer;
-        _isServer = isServer;
+        _syncRepository = syncRepository;
     }
 
     public InputSynchronizer Create(long data)
@@ -21,27 +20,22 @@ public class InputSynchronizerFactory
         return Spawn(data);
     }
 
-    public InputSynchronizer Create()
-    {
-        return Spawn(default);
-    }
-
-    protected virtual InputSynchronizer Spawn(long peer)
+    protected virtual InputSynchronizer Spawn(long ownerPeer)
     {
         var inputSync = GD.Load<PackedScene>(_path).Instantiate<InputSynchronizer>();
-
-        long ownerPeer = _isServer ? peer : _myPeer;
-            
+           
         inputSync.Name = $"InputSynchronizer_{ownerPeer}";
 
         inputSync.SetMultiplayerAuthority((int)ownerPeer);
 
         _root.AddChild(inputSync);
 
-        var sync = inputSync.GetNode<MultiplayerSynchronizer>("MultiplayerSynchronizer");
+        var sync = inputSync.Synchronizer;
 
         sync.PublicVisibility = false;
         sync.SetVisibilityFor(1, true);
+
+        _syncRepository.Add(ownerPeer, inputSync);
 
         return inputSync;
     }

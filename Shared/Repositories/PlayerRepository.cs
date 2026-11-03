@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using Godot;
 using ROMA2.Shared.Data;
 
 namespace ROMA2.Shared.Repositories;
@@ -10,10 +9,12 @@ public class PlayerRepository
     private List<long> _playersIds = [];
     // key - player peer, int - character id
     private Dictionary<long, int> _pickedCharacters = [];
-    // Уже загруженные объекты персонажей
-    private Dictionary<long, Node> _initCharacters = [];
     private Dictionary<long, TeamType> _teams = [];
-
+    private Dictionary<TeamType, List<long>> _players = new()
+    {
+        { TeamType.FirstTeam, new() },
+        { TeamType.SecondTeam, new() }
+    };
     public int PlayersCount { get => _playersIds.Count; }
     public required long MyPeer { get; init; }
     
@@ -21,6 +22,8 @@ public class PlayerRepository
     {
         _playersIds.Add(peerId);
         _teams[peerId] = team;
+
+        _players[team].Add(peerId);
     }
 
     public (long, TeamType) GetPlayer(int id)
@@ -29,6 +32,16 @@ public class PlayerRepository
         _teams.TryGetValue(peer, out TeamType team);
         
         return (peer, team);
+    }
+
+    public long GetPlayer(int id, TeamType team)
+    {
+        return _players[team][id];
+    }
+
+    public TeamType GetTeam(long playerPeer)
+    {
+        return _teams[playerPeer];
     }
 
     public int GetPlayerId(long playerPeer)

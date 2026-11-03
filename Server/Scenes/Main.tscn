@@ -13,10 +13,19 @@ _charSpawner = NodePath("GameWorld/Characters/CharacterSpawner")
 _inputRoot = NodePath("GameWorld/Characters")
 _parentRoot = NodePath("GameWorld/Projectiles")
 _fFirstPosition = Vector3(0, 1.5, 0)
-_fSecondPosition = Vector3(2, 1.5, 2)
+_fSecondPosition = Vector3(5, 1.5, 5)
+_fThirdPosition = Vector3(0, 1.5, 0)
+_fFourthPosition = Vector3(0, 1.5, 0)
+_fFifthPosition = Vector3(0, 1.5, 0)
+_sFirstPosition = Vector3(2, 1.5, 2)
+_sSecondPosition = Vector3(4, 1.5, 4)
+_sThirdPosition = Vector3(0, 1.5, 0)
+_sFourthPosition = Vector3(0, 1.5, 0)
+_sFifthPosition = Vector3(0, 1.5, 0)
 
 [node name="Server" type="Node" parent="." unique_id=82617968 node_paths=PackedStringArray("_networkBridge")]
 script = ExtResource("2_cimub")
+_requiredPlayers = 2
 _networkBridge = NodePath("../NetworkBridge")
 
 [node name="NetworkBridge" type="Node" parent="." unique_id=221906756]

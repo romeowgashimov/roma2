@@ -13,11 +13,11 @@ public interface IClientCharacter
 
     void InitClient(EntityStore store)
     {
-        store
-            .CreateEntity(
+        Character.Entity = store.CreateEntity(
                 new CharacterReference { Value = Character }, 
                 new AnimationPlayerReference { Value = AnimationPlayer },
-                new AnimationStateComponent { Previous = AnimationState.Idle })
-            .AddTag<InterpolateTag>();
+                new AnimationStateComponent { Previous = AnimationState.Idle });
+
+        Character.Entity.AddTag<InterpolateTag>();
     }
 }

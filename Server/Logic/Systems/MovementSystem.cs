@@ -4,10 +4,11 @@ using Godot;
 using ROMA2.Shared.Characters;
 using ROMA2.Shared.Data;
 using ROMA2.Shared.Network;
+using ROMA2.Shared.Repositories;
 
 namespace ROMA2.Server.Logic.Systems;
 
-public class MovementSystem : QuerySystem<
+public class MovementSystem(InputSynchronizerRepository repository) : QuerySystem<
         CharacterReference, 
         InputSynchronizerReference, 
         MoveSpeed, 
@@ -25,7 +26,7 @@ public class MovementSystem : QuerySystem<
                          ref AnimationStateComponent animState, Entity entity) =>
     {
         Character character = charRef.Value;
-        InputSynchronizer sync = syncRef.Value;
+        InputSynchronizer sync = repository.Get(syncRef.OwnerPeer);
 
         if (character == null || sync == null) return;
 

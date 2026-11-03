@@ -13,10 +13,12 @@ public sealed partial class NetworkBridge : Node
     public event Action<long, int> CharacterSelected;
     public event Action<long, bool> CharacterSelectionCanceled;
     public event Action<long, int> CharacterSelectionApproved;
-    public event Func<InputSynchronizer> InputSyncCreation;
+    public event Func<long, InputSynchronizer> InputSyncCreation;
     public event Action<long> InputSyncCreationSuccess;
     public event Func<byte[], Projectile> ProjectileCreated;
     public event Action<int> ProjectileDeleted;
+    public event Action<long, long, bool> ViewSharingRequest;
+    public event Action<long, long, bool> ViewSharingAccess;
 
     public override void _Notification(int what)
     {
@@ -72,9 +74,9 @@ public sealed partial class NetworkBridge : Node
     }
 
     [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-    public void OnInputSynchronizerCreation()
+    public void OnInputSynchronizerCreation(long ownerPeer)
     { 
-        InputSyncCreation?.Invoke();
+        InputSyncCreation?.Invoke(ownerPeer);
     }
 
     [Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
@@ -94,5 +96,20 @@ public sealed partial class NetworkBridge : Node
     public void OnProjectileDeleted(int localId)
     {
         ProjectileDeleted?.Invoke(localId);
+    }
+
+    // state - хотим получить/true, больше не хотим получать/false
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    public void OnViewSharingRequest(long receiverPeer, bool state)
+    {
+        long senderId = Multiplayer.GetRemoteSenderId();
+        ViewSharingRequest?.Invoke(senderId, receiverPeer, state);
+    }   
+
+    // state - хотим получить/true, больше не хотим получать/false
+    [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    public void OnViewSharingAccess(long receiverPeer, long senderPeer, bool state)
+    {
+        ViewSharingAccess?.Invoke(receiverPeer, senderPeer, state);
     }
 }

@@ -4,6 +4,7 @@ using ROMA2.Shared;
 using Friflo.Engine.ECS;
 using Friflo.Engine.ECS.Systems;
 using ROMA2.Shared.Network;
+using ROMA2.Shared.Repositories;
 
 namespace ROMA2.Client.Logic.Core;
 
@@ -14,17 +15,25 @@ public class WorldFactory
     private string _gameWorldPath;
     private EntityStore _store;
     private SystemGroup _group;
+    private InputHandler _inputHandler;
 
-    public WorldFactory(NetworkBridge bridge, Node root, string gameWorldPath, EntityStore store, SystemGroup group)
+    public WorldFactory(
+        NetworkBridge bridge, 
+        Node root, 
+        string gameWorldPath, 
+        EntityStore store, 
+        SystemGroup group, 
+        InputHandler inputHandler)
     {
         _group = group;
         _store = store;
         _bridge = bridge;
         _root = root;
         _gameWorldPath = gameWorldPath;
+        _inputHandler = inputHandler;
     }
 
-    public bool TryCreate(Client client, out GameWorldEntryPoint gameWorld)
+    public bool TryCreate(Client client, PlayerRepository playerRepository, out GameWorldEntryPoint gameWorld)
     {
         var gameWorldScene = Load<PackedScene>(_gameWorldPath);
 
@@ -39,7 +48,7 @@ public class WorldFactory
         
         _root.AddChild(gameWorld);
 
-        gameWorld.Init(_bridge, client, _store, _group);
+        gameWorld.Init(_bridge, client, _store, _group, playerRepository, _inputHandler);
 
         return true;
     }

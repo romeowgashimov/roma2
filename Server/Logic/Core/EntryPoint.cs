@@ -8,6 +8,7 @@ using ROMA2.Shared.Characters;
 using ROMA2.Shared.Configurations;
 using ROMA2.Shared.Network;
 using ROMA2.Shared.Repositories;
+using ROMA2.Shared.Systems;
 using static Godot.GD;
 using static ROMA2.Server.Logic.Core.GameState;
 
@@ -57,21 +58,27 @@ public partial class EntryPoint : Node
         long myPeer = _server.Multiplayer.GetUniqueId();
         PlayerRepository playerRepos = new() { MyPeer = myPeer };
         CharactersConfiguration config = new(isServer: true);
-        CharacterFactory charFactory = new(config, _charSpawner, store);
-        InputSynchronizerFactory inputSyncFactory = new(_inputRoot, myPeer, true);
-        ProjectilesConfiguration projConfig = new(true);
+        PlayableCharacterFactory charFactory = new(config, _charSpawner, store);
+        InputSynchronizerRepository inputRepository = new();
+        InputSynchronizerFactory inputSyncFactory = new(_inputRoot, inputRepository);
+        ProjectilesConfiguration projConfig = new(isServer: true);
         ProjectileRepository rep = new();
         ServerProjectileFactory projFactory = new(projConfig, store, _networkBridge, _parentRoot, rep);
 
+        EndSimulationCommandBufferSystem endSystem = new();
         _root = new(store)
         {
             new AnimationStateResetSystem(),
-            new MovementSystem(),
+            new MovementSystem(inputRepository),
             new AnimationStateRegistrationSystem(),
-            new RangedAttackSpawnSystem(projFactory),
+            new RangedAttackSpawnSystem(projFactory, inputRepository),
             new RangedAttackDespawnSystem(),
-            new RangedAttackDestroySystem(projFactory)
+            new RangedAttackDestroySystem(projFactory),
+            endSystem
         };
+
+        AllyViewSharingService viewSharingService = new(_networkBridge, playerRepos, inputRepository);
+
         _charSelectService = new(playerRepos, _networkBridge);
         _charSelectService.ChangeState += OnChangingState;
 

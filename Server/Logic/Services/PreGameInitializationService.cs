@@ -15,7 +15,7 @@ public class PreGameInitializationService
 {
     private PlayerRepository _playerRepos;
     private SpawnConfiguration _spawnConfig;
-    private CharacterFactory _factory;
+    private PlayableCharacterFactory _factory;
     private EntityStore _store;
     private NetworkBridge _bridge;
     private InputSynchronizerFactory _inputSyncFactory;
@@ -26,7 +26,7 @@ public class PreGameInitializationService
         PlayerRepository playerRepos, 
         SpawnConfiguration spawnConfig, 
         EntityStore store,
-        CharacterFactory factory,
+        PlayableCharacterFactory factory,
         NetworkBridge bridge,
         InputSynchronizerFactory inputSyncFactory)
     {
@@ -62,7 +62,7 @@ public class PreGameInitializationService
             character.Position = _spawnConfig.GetSpawnPosition(team, i);
 
             var inputSync = _inputSyncFactory.Create(peer);
-            _bridge.RpcId(peer, nameof(_bridge.OnInputSynchronizerCreation));
+            _bridge.Rpc(nameof(_bridge.OnInputSynchronizerCreation), peer);
 
             /*var playerEntity = _store.CreateEntity(
                 new PlayerPeer { Value = peer },
@@ -77,7 +77,7 @@ public class PreGameInitializationService
                 character.Entity.AddComponent(new PlayerPeer { Value = peer });
                 character.Entity.AddComponent(new Team { Value = team });
                 character.Entity.AddComponent(new CharacterReference { Value = character });
-                character.Entity.AddComponent(new InputSynchronizerReference { Value = inputSync });
+                character.Entity.AddComponent(new InputSynchronizerReference { OwnerPeer = peer });
                 character.Entity.AddComponent(new MoveSpeed { Value = 5 });
                 character.Entity.AddComponent(new AnimationStateComponent());
                 character.Entity.AddComponent(new MaxHealth { Value = 1000 });

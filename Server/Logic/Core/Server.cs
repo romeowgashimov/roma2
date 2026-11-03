@@ -1,5 +1,6 @@
 using System;
 using Godot;
+using Godot.Collections;
 using ROMA2.Shared.Data;
 using ROMA2.Shared.Network;
 using ROMA2.Shared.Repositories;
@@ -12,6 +13,7 @@ public partial class Server : Node
     [Export] private int _serverPort = 7070;
     [Export] private int _requiredPlayers = 1;
     [Export] private NetworkBridge _networkBridge;
+    
     private PlayerRepository _playerRepos;
 
     public event Action<GameState> ChangeState;
@@ -49,8 +51,8 @@ public partial class Server : Node
         }
 
         // Тесты
-        TeamType team = _playerRepos.PlayersCount == 0 ? TeamType.FirstTeam : TeamType.SecondTeam;
-        _playerRepos.AddPlayer(senderId, team);
+        //TeamType team = _playerRepos.PlayersCount == 0 ? TeamType.FirstTeam : TeamType.SecondTeam;
+        _playerRepos.AddPlayer(senderId, TeamType.FirstTeam);
 
         _networkBridge.RpcId(senderId, nameof(_networkBridge.OnApprovedJoin));
 
@@ -60,6 +62,18 @@ public partial class Server : Node
         {
             Print($"Все игроки вошли");
             ChangeState?.Invoke(GameState.WaitChoices);
+
+            Dictionary data = new();
+            TeamType team = TeamType.FirstTeam;
+            // 2 для тестов
+            for (int i = 0; i < 2; ++i) 
+                data[i] = _playerRepos.GetPlayer(i, team);
+            // 0 тоже для тестов
+            team = TeamType.SecondTeam;
+            for (int i = 2; i < 0; ++i)
+                data[i] = _playerRepos.GetPlayer(i, team);
+            
+            _networkBridge.Rpc(nameof(_networkBridge.OnAllPlayersConnected), data);
         }
     }
 }

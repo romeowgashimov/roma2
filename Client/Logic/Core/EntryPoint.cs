@@ -13,6 +13,7 @@ public partial class EntryPoint : Node
     [Export] private Client _client;
     [Export] private StartView _startView;
     [Export] private string _gameWorldScenePath = "res://Client/Scenes/game_world.tscn";
+    [Export] private InputHandler _inputHandler;
 
     private EntityStore _store;
     private SystemGroup _group;
@@ -23,7 +24,6 @@ public partial class EntryPoint : Node
         _store = new();
         _group = new("groups")
         {
-            new InputSynchronizationSystem(_store),
             new TransformInterpolationSystem(),
             new AnimationSystem(),
         };
@@ -31,8 +31,8 @@ public partial class EntryPoint : Node
         {
             _group
         };
-
-        WorldFactory factory = new(_bridge, this, _gameWorldScenePath, _store, _group);
+        
+        WorldFactory factory = new(_bridge, this, _gameWorldScenePath, _store, _group, _inputHandler);
         
         _client.Init(factory);
         _startView.Init();

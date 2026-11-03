@@ -13,6 +13,8 @@ public partial class InputSynchronizer : Node
     // Все ваши кнопки в одной переменной (битовая маска)
     [Export] public int ActionButtonsMask { get; set; }
 
+    [Export] public MultiplayerSynchronizer Synchronizer;
+
     // Удобные свойства-хелперы для проверки кнопок в коде персонажа
     public bool IsPressed => (ActionButtonsMask & (1 << 0)) != 0;
     public bool IsKey1Pressed => (ActionButtonsMask & (1 << 1)) != 0;

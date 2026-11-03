@@ -4,13 +4,17 @@ using Godot.Collections;
 using ROMA2.Shared.Configurations;
 
 namespace ROMA2.Shared.Characters;
-public class CharacterFactory
+
+public class PlayableCharacterFactory
 {
     private CharactersConfiguration _config;
     private MultiplayerSpawner _spawner;
-    private EntityStore _store;
+    protected EntityStore _store;
 
-    public CharacterFactory(CharactersConfiguration config, MultiplayerSpawner spawner, EntityStore store)
+    public PlayableCharacterFactory(
+        CharactersConfiguration config, 
+        MultiplayerSpawner spawner, 
+        EntityStore store)
     {
         _config = config;
         _spawner = spawner;
@@ -24,7 +28,7 @@ public class CharacterFactory
         return (Character)_spawner.Spawn(data);
     }
 
-    private Character Spawn(Dictionary data)
+    protected virtual Character Spawn(Dictionary data)
     {
         int instId = (int)data["characterId"];
         int entityId = (int)data["entityId"];

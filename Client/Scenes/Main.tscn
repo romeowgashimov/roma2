@@ -4,12 +4,14 @@
 [ext_resource type="Script" uid="uid://cd6kax76xvt1f" path="res://Shared/Network/NetworkBridge.cs" id="1_np6pa"]
 [ext_resource type="Script" uid="uid://ceo82u4uevcbq" path="res://Client/Logic/Core/Client.cs" id="2_qqe4x"]
 [ext_resource type="PackedScene" uid="uid://yvks3kr6xpur" path="res://Client/Scenes/start_menu.tscn" id="4_qqe4x"]
+[ext_resource type="Script" uid="uid://boklqapmubs1r" path="res://Client/Logic/Core/InputHandler.cs" id="5_d612g"]
 
-[node name="Main" type="Node" unique_id=2125129965 node_paths=PackedStringArray("_bridge", "_client", "_startView")]
+[node name="Main" type="Node" unique_id=2125129965 node_paths=PackedStringArray("_bridge", "_client", "_startView", "_inputHandler")]
 script = ExtResource("1_ama40")
 _bridge = NodePath("NetworkBridge")
 _client = NodePath("Client")
 _startView = NodePath("StartMenu")
+_inputHandler = NodePath("InputHandler")
 
 [node name="Client" type="Node" parent="." unique_id=154863433 node_paths=PackedStringArray("_networkBridge")]
 script = ExtResource("2_qqe4x")
@@ -21,7 +23,7 @@ script = ExtResource("1_np6pa")
 [node name="StartMenu" parent="." unique_id=752878561 node_paths=PackedStringArray("_client") instance=ExtResource("4_qqe4x")]
 _client = NodePath("../Client")
 
-[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="." unique_id=1909546459]
-spawn_path = NodePath("..")
+[node name="InputHandler" type="Node" parent="." unique_id=411573106]
+script = ExtResource("5_d612g")
 
 [editable path="StartMenu"]
