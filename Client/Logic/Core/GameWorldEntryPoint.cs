@@ -1,18 +1,13 @@
-using Friflo.Engine.ECS;
-using Friflo.Engine.ECS.Systems;
 using Godot;
 using ROMA2.Client.Logic.Characters;
 using ROMA2.Client.Logic.Projectiles;
 using ROMA2.Client.Logic.Repositories;
 using ROMA2.Client.Logic.Services;
-using ROMA2.Client.Logic.Systems;
 using ROMA2.Client.Logic.ViewModels;
 using ROMA2.Client.Logic.Views;
 using ROMA2.Shared.Configurations;
-using ROMA2.Shared.Data;
 using ROMA2.Shared.Network;
 using ROMA2.Shared.Repositories;
-using ROMA2.Shared.Systems;
 
 namespace ROMA2.Client.Logic.Core;
 
@@ -24,55 +19,49 @@ public partial class GameWorldEntryPoint : Node
     [Export] private Node _projectileRoot;
     
     private NetworkBridge _bridge;
-    private EntityStore _store;
-    private SystemGroup _group;
     private PlayerRepository _playerRepository;
+    private CharacterRepository _charRepo;
+    private ProjectileRepository _projRepo;
+
+    private AllyViewSharingService _viewSharingService;
+    private InputSynchronizerService _syncService;
+    private CameraPivotControllerService _pivotService;
 
     public void Init(
         NetworkBridge bridge,
         Client client,
-        EntityStore store,
-        SystemGroup group,
         PlayerRepository playerRepository, 
         InputHandler inputHandler)
     {
-        _group = group;
-        _store = store;
+        _bridge = bridge;
         _playerRepository = playerRepository;
 
-        CharactersConfiguration charConfig = new(false);
         long myPeer = client.Multiplayer.GetUniqueId();
-        PlayerRepository playerRepos = new() { MyPeer = myPeer };
+        GlobalConfiguration.MyPeer = myPeer;
 
-        _store.CreateEntity(new UniqueEntity("MyPeer"), new PlayerPeer { Value = myPeer });
+        PlayableCharacterConfiguration charConfig = new(false);
+        ProjectilesConfiguration projConfig = new(false);
 
-        CameraPivotControllerRepositoty pivotRepository = new();
+        CameraPivotControllerRepository pivotRepository = new();
         InputSynchronizerRepository syncRepository = new();
+        _projRepo = new();
+        _charRepo = new();
 
-        EndSimulationCommandBufferSystem endSimulationSystem = new();
-        _group.Add(new LocalPivotControllerSystem(pivotRepository));
-        _group.Add(new ServerPivotControllerSystem(pivotRepository, syncRepository));
-        _group.Add(new InputSynchronizationSystem(syncRepository, pivotRepository));
-        _group.Add(endSimulationSystem);
+        ClientInputSyncFactory inputSyncFactory = new(_inputRoot, syncRepository, _bridge);
+        ClientProjectileFactory projFactory = new(
+            projConfig, bridge, _projectileRoot, _projRepo);
+        ClientPlayableCharFactory charFactory = new(
+            charConfig, _charSpawner, _charRepo, pivotRepository, inputHandler, projFactory);
 
-        _bridge = bridge;
+        CharacterSelectionService charSelectService = new(_bridge, _playerRepository);
+        _syncService = new(syncRepository, pivotRepository, myPeer);
+        _pivotService = new(pivotRepository);
+        _viewSharingService = new(
+            _bridge, pivotRepository, myPeer, _playerRepository, inputHandler, syncRepository, _pivotService);
 
-        CharacterSelectionService charSelectService = new(_bridge, playerRepos);
         CharacterSelectionViewModel charSelectViewModel = new(charSelectService);
         _charSelectView.Init(charSelectViewModel);
-
-        ClientPlayableCharFactory charFactory = new(charConfig, _charSpawner, _store, pivotRepository);
-
-        ClientInputSyncFactory inputSyncFactory = new(_inputRoot, syncRepository, _store, myPeer);
-        _bridge.InputSyncCreation += inputSyncFactory.Create;
         
-        ProjectilesConfiguration projConfig = new(false);
-        ProjectileRepository rep = new();
-        ClientProjectileFactory projFactory = new(projConfig, store, bridge, _projectileRoot, rep);
-
-        AllyViewSharingService viewSharingService = new(
-            _bridge, pivotRepository, myPeer, _store, endSimulationSystem.EndSimulationCommandBuffer, _playerRepository, inputHandler, syncRepository);
-
         _bridge.CharacterSelectionApproved += UnSubscribe;
         void UnSubscribe(long peer, int characterId)
         {
@@ -81,5 +70,17 @@ public partial class GameWorldEntryPoint : Node
             _charSelectView.QueueFree();
             _bridge.CharacterSelectionApproved -= UnSubscribe;
         }
+    }
+
+    public override void _Process(double delta)
+    {
+        float dt = (float)delta;
+        
+        _charRepo.Tick(dt);
+        _projRepo.Tick(dt);
+
+        _pivotService.Tick(dt);
+        _viewSharingService.Tick(dt);
+        _syncService.Tick(dt);
     }
 }

@@ -1,6 +1,4 @@
 using System;
-using Friflo.Engine.ECS;
-using Friflo.Json.Burst;
 using Godot;
 using ROMA2.Shared.Configurations;
 using ROMA2.Shared.Network;
@@ -13,10 +11,9 @@ public class ClientProjectileFactory : ProjectileExtendedFactory, IDisposable
 {
     public ClientProjectileFactory(
         ProjectilesConfiguration projCong, 
-        EntityStore store, 
         NetworkBridge bridge,
         Node parentRoot,
-        ProjectileRepository repository) : base(projCong, store, bridge, parentRoot, repository)
+        ProjectileRepository repository) : base(projCong, bridge, parentRoot, repository)
     {
         _bridge.ProjectileCreated += Spawn;
         _bridge.ProjectileDeleted += Reset;
@@ -42,12 +39,13 @@ public class ClientProjectileFactory : ProjectileExtendedFactory, IDisposable
     {
         var projectile = _repository.Get(localId);
 
-        Reset(projectile.Id, localId, projectile);
+        Reset(projectile.Identifier, localId, projectile);
     }
 
     public void Dispose()
     {
         _bridge.ProjectileCreated -= Spawn;
+        _bridge.ProjectileDeleted -= Reset;
 
         GC.SuppressFinalize(this);
     }

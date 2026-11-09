@@ -25,6 +25,11 @@ public class InputSynchronizerRepository
         return _inputs[localId];
     }
 
+    public bool TryGet(long reference, out InputSynchronizer sync)
+    {
+        return _inputs.TryGetValue(reference, out sync);
+    }
+
     public MultiplayerSynchronizer GetSynchronizer(long localId)
     {
         return Get(localId).Synchronizer;

@@ -1,40 +1,39 @@
-using System;
-using System.Collections.Generic;
-using Friflo.Engine.ECS;
 using Godot;
 using ROMA2.Shared.Configurations;
 using ROMA2.Shared.Interfaces;
 
+
 namespace ROMA2.Shared.Projectiles;
 
-public abstract partial class Projectile : RigidBody3D, IEntityOwner
+public abstract partial class Projectile : RigidBody3D, ITickable, INetworkTransform
 {
+    protected ProjectileExtendedFactory _projFactory;
+
+    [Export] public Vector3 NetworkPosition { get; set; }
+    [Export] public Vector3 NetworkRotation { get; set; }
+
     [Export] public MultiplayerSynchronizer Sync;
-    [Export] public bool IsPooled;
 
-    public int Id { get; init; }
-    public Entity Entity;
-    public Entity EntityOwner { get; set; }
-
-    Entity IEntityOwner.Entity { get => Entity; }
+    public int Identifier { get; init; }
+    public int Reference { get; set; }
+    
 
     protected Projectile()
     {
-        Id = ProjectilesConfiguration.GetProjectileId(this);
+        Identifier = ProjectilesConfiguration.GetProjectileId(this);
     }
-
-    public void EnableEntity() => Entity.Enabled = true;
-
-    public int GetCollisions(List<Entity> results)
+    
+    public virtual void Init(ProjectileExtendedFactory projFactory)
     {
-        return 0;
+        _projFactory = projFactory;
     }
-
-    public abstract void Init();
 
     public override void _EnterTree()
     {
         Sync.SetMultiplayerAuthority(1);
     }
 
+    public abstract void Tick(float delta);
+
+    public abstract void Clear();
 }

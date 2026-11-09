@@ -1,30 +1,33 @@
-using Friflo.Engine.ECS;
 using Godot;
 using Godot.Collections;
+using ROMA2.Client.Logic.Core;
 using ROMA2.Client.Logic.Interfaces;
 using ROMA2.Client.Logic.Repositories;
 using ROMA2.Shared.Characters;
 using ROMA2.Shared.Configurations;
+using ROMA2.Shared.Projectiles;
+using ROMA2.Shared.Repositories;
 
 namespace ROMA2.Client.Logic.Characters;
 
 public class ClientPlayableCharFactory(
-    CharactersConfiguration config, 
+    PlayableCharacterConfiguration config, 
     MultiplayerSpawner spawner, 
-    EntityStore store, 
-    CameraPivotControllerRepositoty pivotRepository) : PlayableCharacterFactory(config, spawner, store)
+    CharacterRepository repository, 
+    CameraPivotControllerRepository pivotRepository,
+    InputHandler inputHandler,
+    ProjectileExtendedFactory projFactory) : PlayableCharacterFactory(config, spawner, repository, projFactory)
 {
     protected override Character Spawn(Dictionary data)
     {
         var character = base.Spawn(data);
 
-        long ownerPeer = (long)data["ownerPeer"];
-        
         if (character is IClientPlayableCharacter playable)
         {
-            pivotRepository.Add(ownerPeer, playable.PivotController);
+            pivotRepository.Add(character.OwnerPeer, playable.PivotController);
 
-            playable.InitClient(_store);
+            if (character.OwnerPeer == GlobalConfiguration.MyPeer)
+                playable.PivotController.Init(inputHandler);
         }
 
         return character;

@@ -1,5 +1,5 @@
-using Friflo.Engine.ECS;
 using Godot;
+using ROMA2.Client.Logic.Core;
 using ROMA2.Shared.Characters;
 
 namespace ROMA2.Client.Logic.Controllers;
@@ -19,15 +19,37 @@ public partial class CameraPivotController : Node3D
     [Export] public float PitchMin = -Mathf.Pi / 3; // ~ -60 градусов
     [Export] public float PitchMax = Mathf.Pi / 4;  // ~ 45 градусов
 
-    public Entity Entity;
+    private InputHandler _inputHandler;
 
-    public void Init()
+    public void Init(InputHandler inputHandler)
     {
+        _inputHandler = inputHandler;
+
+        _inputHandler.HandleInput += CalculateInput;
+
         Input.MouseMode = Input.MouseModeEnum.Captured;
         TopLevel = true;
     }
 
-    public override void _UnhandledInput(InputEvent @event)
+    public void Tick()
+    {
+        PitchInput = Mathf.Clamp(PitchInput, PitchMin, PitchMax);
+
+        Rotation = new Vector3(PitchInput, TwistInput, 0.0f);
+
+        Position = _character.Position + (Transform.Basis * _offset);
+    }
+
+    public void Tick(Vector3 mouseDirection)
+    {
+        Position = _character.Position + (Transform.Basis * _offset);
+
+        Basis targetBasis = Basis.LookingAt(mouseDirection, Vector3.Up);
+
+        Rotation = targetBasis.GetEuler();
+    } 
+
+    private void CalculateInput(InputEvent @event)
     {
         if (@event is InputEventMouseMotion mouseMotion && Input.MouseMode == Input.MouseModeEnum.Captured)
         {
@@ -42,22 +64,4 @@ public partial class CameraPivotController : Node3D
                 : Input.MouseModeEnum.Captured;
         }
     }
-
-    public void Run()
-    {
-        PitchInput = Mathf.Clamp(PitchInput, PitchMin, PitchMax);
-
-        Rotation = new Vector3(PitchInput, TwistInput, 0.0f);
-
-        Position = _character.Position + (Transform.Basis * _offset);
-    }
-
-    public void Run(Vector3 mouseDirection)
-    {
-        Position = _character.Position + (Transform.Basis * _offset);
-
-        Basis targetBasis = Basis.LookingAt(mouseDirection, Vector3.Up);
-
-        Rotation = targetBasis.GetEuler();
-    } 
 }

@@ -1,9 +1,10 @@
 using System.Collections.Generic;
+using ROMA2.Shared.Interfaces;
 using ROMA2.Shared.Projectiles;
 
 namespace ROMA2.Shared.Repositories;
 
-public class ProjectileRepository
+public class ProjectileRepository : ITickable
 {
     private Dictionary<int, Projectile> _ingameProjectiles = [];
 
@@ -22,5 +23,11 @@ public class ProjectileRepository
     public Projectile Get(int localId)
     {
         return _ingameProjectiles[localId];
+    }
+
+    public void Tick(float delta)
+    {
+        foreach (var pair in _ingameProjectiles)
+            pair.Value.Tick(delta);
     }
 }

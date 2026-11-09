@@ -1,21 +1,16 @@
 using Godot;
+using ROMA2.Shared.Data;
 
 namespace ROMA2.Shared.Network;
 
 public partial class InputSynchronizer : Node
 {
-    // Направление взгляда/мыши (если это 3D-вектор на плоскости, тоже можно подумать о Vector2)
     [Export] public Vector3 MouseDirection { get; set; }
-    
-    // Направление движения (X и Z оси), экономим на векторе Y
     [Export] public Vector2 WasdDirection { get; set; }
-
-    // Все ваши кнопки в одной переменной (битовая маска)
     [Export] public int ActionButtonsMask { get; set; }
 
     [Export] public MultiplayerSynchronizer Synchronizer;
 
-    // Удобные свойства-хелперы для проверки кнопок в коде персонажа
     public bool IsPressed => (ActionButtonsMask & (1 << 0)) != 0;
     public bool IsKey1Pressed => (ActionButtonsMask & (1 << 1)) != 0;
     public bool IsKey2Pressed => (ActionButtonsMask & (1 << 2)) != 0;
@@ -23,7 +18,8 @@ public partial class InputSynchronizer : Node
     public bool IsKey4Pressed => (ActionButtonsMask & (1 << 4)) != 0;
     public bool IsJumped => (ActionButtonsMask & (1 << 5)) != 0;
 
-    // Метод для записи ввода на стороне клиента
+    public long Reference { get; set; }
+
     public void SetButtons(bool isPressed, bool k1, bool k2, bool k3, bool k4, bool jump)
     {
         int mask = 0;
@@ -34,5 +30,15 @@ public partial class InputSynchronizer : Node
         if (k4)        mask |= 1 << 4;
         if (jump)      mask |= 1 << 5;
         ActionButtonsMask = mask;
+    }
+
+    public ClientInput CreateInput()
+    {
+        return new ClientInput
+        {
+            MouseDirection = MouseDirection,
+            WasdDirection = WasdDirection,
+            ActionButtonsMask = ActionButtonsMask
+        };
     }
 }

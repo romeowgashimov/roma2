@@ -1,46 +1,49 @@
 using System;
-using Friflo.Engine.ECS;
 using Godot;
+using ROMA2.Client.Logic.Controllers;
 using ROMA2.Client.Logic.Core;
-using ROMA2.Client.Logic.Data;
 using ROMA2.Client.Logic.Repositories;
 using ROMA2.Shared.Data;
+using ROMA2.Shared.Interfaces;
 using ROMA2.Shared.Network;
 using ROMA2.Shared.Repositories;
 
 namespace ROMA2.Client.Logic.Services;
 
-public class AllyViewSharingService : IDisposable
+public class AllyViewSharingService : ITickable, IDisposable
 {
+    private const float INTERPOLATION_COEFFICIENT = 30f; 
+
     private NetworkBridge _bridge;
-    private CameraPivotControllerRepositoty _pivotRepository;
+    private CameraPivotControllerRepository _pivotRepository;
     private PlayerRepository _playerRepository;
     private long _myPeer;
     private TeamType _myTeam = TeamType.Unknown;
-    private EntityStore _store;
-    private Entity _cameraEntity;
-    private CommandBuffer _cb;
     private InputHandler _inputHandler;
     private InputSynchronizerRepository _inputRepository;
+    private CameraPivotController _allyPivot;
+    private Vector3 _allyMouseDirection;
+    private InputSynchronizer _allySync;
+    private CameraPivotControllerService _pivotService;
 
     public AllyViewSharingService(
         NetworkBridge bridge,
-        CameraPivotControllerRepositoty pivotRepository,
+        CameraPivotControllerRepository pivotRepository,
         long myPeer,
-        EntityStore store,
-        CommandBuffer cb, 
         PlayerRepository playerRepository,
         InputHandler inputHandler,
-        InputSynchronizerRepository inputRepository)
+        InputSynchronizerRepository inputRepository,
+        CameraPivotControllerService pivotService)
     {
         _bridge = bridge;
         _pivotRepository = pivotRepository;
         _myPeer = myPeer;
-        _store = store;
-        _cb = cb;
+
         _playerRepository = playerRepository;
         _inputHandler = inputHandler;
         _inputRepository = inputRepository;
+
+        _pivotService = pivotService;
 
         _bridge.ViewSharingAccess += OnViewSharingAccess;
         _inputHandler.HandleInput += ViewSharingRequest;
@@ -67,20 +70,28 @@ public class AllyViewSharingService : IDisposable
 
     public void GetView(long receiverPeer, bool state)
     {
-        var receiverCamera = _pivotRepository.Get(receiverPeer).Camera;
-        var myCamera = _pivotRepository.Get(_myPeer).Camera;
+        if (!_pivotRepository.TryGet(receiverPeer, out _allyPivot) 
+            || !_pivotRepository.TryGet(_myPeer, out var myPivot)) return;
+
+        var receiverCamera = _allyPivot.Camera;
+        var myCamera = myPivot.Camera;
 
         receiverCamera.Current = state;
         myCamera.Current = !state;
 
-        if (state) 
+        if (state)
         {
-            _cameraEntity = _store.CreateEntity(
-                new CameraPivotControllerReference { OwnerPeer = receiverPeer });
-
-            _cameraEntity.AddTag<NetworkPlayerTag>();
+            _allySync = _inputRepository.Get(receiverPeer);
+            
+            _pivotService.Enabled = false;
         }
-        else _cb.DeleteEntity(_cameraEntity.Id);
+        else 
+        {
+            _allyPivot = null;
+            _allySync = null;
+
+            _pivotService.Enabled = true;
+        }
     }
 
     public void ViewSharingRequest(InputEvent @event)
@@ -136,5 +147,18 @@ public class AllyViewSharingService : IDisposable
         _inputHandler.HandleInput -= ViewSharingRequest;
 
         GC.SuppressFinalize(this);
+    }
+
+    public void Tick(float delta)
+    {
+        if (_allySync == null || _allyPivot == null) return;
+
+        if (_allySync.MouseDirection.Equals(Vector3.Zero)) return;
+
+        _allyMouseDirection = _allyMouseDirection.Lerp(
+            -_allySync.MouseDirection, 
+            INTERPOLATION_COEFFICIENT * delta);
+
+        _allyPivot.Tick(_allyMouseDirection);
     }
 }

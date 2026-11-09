@@ -1,14 +1,11 @@
-using Friflo.Engine.ECS;
-using Friflo.Engine.ECS.Systems;
 using Godot;
+using ROMA2.Server.Logic.Characters;
 using ROMA2.Server.Logic.Projectiles;
+using ROMA2.Server.Logic.Repositories;
 using ROMA2.Server.Logic.Services;
-using ROMA2.Server.Logic.Systems;
-using ROMA2.Shared.Characters;
 using ROMA2.Shared.Configurations;
 using ROMA2.Shared.Network;
 using ROMA2.Shared.Repositories;
-using ROMA2.Shared.Systems;
 using static Godot.GD;
 using static ROMA2.Server.Logic.Core.GameState;
 
@@ -46,43 +43,32 @@ public partial class EntryPoint : Node
     private CharacterSelectionService _charSelectService;
     private PreGameInitializationService _initService;
 
-    private SystemRoot _root;
+    private ProjectileRepository _projRepo = new();
+    private CharacterRepository _charRepo = new(); 
+    private PlayerControllerRepository _contRepo = new();
 
     public override void _Ready()
     {
-        EntityStore store = new();
+        long myPeer = _server.Multiplayer.GetUniqueId();
 
         SpawnConfiguration spawnConfig = new(
             [_fFirstPosition, _fSecondPosition, _fThirdPosition, _fFourthPosition, _fFifthPosition], 
             [_sFirstPosition, _sSecondPosition, _sThirdPosition, _sFourthPosition, _sFifthPosition]);
-        long myPeer = _server.Multiplayer.GetUniqueId();
-        PlayerRepository playerRepos = new() { MyPeer = myPeer };
-        CharactersConfiguration config = new(isServer: true);
-        PlayableCharacterFactory charFactory = new(config, _charSpawner, store);
-        InputSynchronizerRepository inputRepository = new();
-        InputSynchronizerFactory inputSyncFactory = new(_inputRoot, inputRepository);
+        PlayableCharacterConfiguration config = new(isServer: true);
         ProjectilesConfiguration projConfig = new(isServer: true);
-        ProjectileRepository rep = new();
-        ServerProjectileFactory projFactory = new(projConfig, store, _networkBridge, _parentRoot, rep);
+        
+        PlayerRepository playerRepos = new() { MyPeer = myPeer };
 
-        EndSimulationCommandBufferSystem endSystem = new();
-        _root = new(store)
-        {
-            new AnimationStateResetSystem(),
-            new MovementSystem(inputRepository),
-            new AnimationStateRegistrationSystem(),
-            new RangedAttackSpawnSystem(projFactory, inputRepository),
-            new RangedAttackDespawnSystem(),
-            new RangedAttackDestroySystem(projFactory),
-            endSystem
-        };
+        InputSynchronizerRepository inputRepository = new();
+
+        ServerProjectileFactory projFactory = new(projConfig, _networkBridge, _parentRoot, _projRepo);
+        ServerPlayableCharFactory charFactory = new(config, _charSpawner, _charRepo, projFactory);
+        ServerInputSyncFactory syncFactory = new(_inputRoot, inputRepository, _networkBridge);
 
         AllyViewSharingService viewSharingService = new(_networkBridge, playerRepos, inputRepository);
-
         _charSelectService = new(playerRepos, _networkBridge);
         _charSelectService.ChangeState += OnChangingState;
-
-        _initService = new(playerRepos, spawnConfig, store, charFactory, _networkBridge, inputSyncFactory);
+        _initService = new(playerRepos, spawnConfig, charFactory, syncFactory, _contRepo);
         _initService.ChangeState += OnChangingState;
 
         _server.Init(playerRepos);
@@ -93,18 +79,21 @@ public partial class EntryPoint : Node
 
     public override void _PhysicsProcess(double delta)
     {
+        float dt = (float)delta;
         switch (_state)
         {
             case WaitPlayers:
                 break;
             case WaitChoices:
-                _charSelectService.Run(delta);
+                _charSelectService.Run(dt);
                 break;
             case Initialization:
                 _initService.Run();
                 break;
             case Play:
-                _root.Update(new UpdateTick((float)delta, 0));
+                _charRepo.Tick(dt);
+                _projRepo.Tick(dt);
+                _contRepo.Tick(dt);
                 break;
         }
     }

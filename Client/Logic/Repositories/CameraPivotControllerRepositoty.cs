@@ -3,7 +3,7 @@ using ROMA2.Client.Logic.Controllers;
 
 namespace ROMA2.Client.Logic.Repositories;
 
-public class CameraPivotControllerRepositoty
+public class CameraPivotControllerRepository
 {
     private Dictionary<long, CameraPivotController> _repository = [];
 
@@ -12,9 +12,9 @@ public class CameraPivotControllerRepositoty
         _repository[ownerPeer] = controller;
     }
 
-    public CameraPivotController Get(long ownerPeer)
+    public bool TryGet(long ownerPeer, out CameraPivotController pivot)
     {
-        return _repository[ownerPeer];
+        return _repository.TryGetValue(ownerPeer, out pivot);
     }
 
     public void Remove(long ownerPeer)

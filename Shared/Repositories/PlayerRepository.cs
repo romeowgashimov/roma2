@@ -64,4 +64,9 @@ public class PlayerRepository
     {
         return _pickedCharacters[peer];
     }
+
+    public bool InOneTeam(long firstPeer, long secondPeer)
+    {
+        return GetTeam(firstPeer) == GetTeam(secondPeer);
+    }
 }

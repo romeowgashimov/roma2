@@ -1,50 +1,50 @@
-using Friflo.Engine.ECS;
 using Godot;
 using Godot.Collections;
 using ROMA2.Shared.Configurations;
+using ROMA2.Shared.Projectiles;
+using ROMA2.Shared.Repositories;
 
 namespace ROMA2.Shared.Characters;
 
-public class PlayableCharacterFactory
+public abstract class PlayableCharacterFactory
 {
-    private CharactersConfiguration _config;
-    private MultiplayerSpawner _spawner;
-    protected EntityStore _store;
+    private CharacterRepository _repository;
+    protected PlayableCharacterConfiguration _config;
+    protected MultiplayerSpawner _spawner;
+    private ProjectileExtendedFactory _projFactory;
 
     public PlayableCharacterFactory(
-        CharactersConfiguration config, 
+        PlayableCharacterConfiguration config, 
         MultiplayerSpawner spawner, 
-        EntityStore store)
+        CharacterRepository repository,
+        ProjectileExtendedFactory projFactory)
     {
         _config = config;
         _spawner = spawner;
-        _store = store;
+        _repository = repository;
+        _projFactory = projFactory;
         
         _spawner.SpawnFunction = Callable.From<Dictionary, Character>(Spawn);
-    }
-
-    public Character Create(Dictionary data)
-    {
-        return (Character)_spawner.Spawn(data);
     }
 
     protected virtual Character Spawn(Dictionary data)
     {
         int instId = (int)data["characterId"];
-        int entityId = (int)data["entityId"];
+        int reference = (int)data["reference"];
         long ownerPeer = (long)data["ownerPeer"];
 
-        string path = _config.GetChampionPath(instId);
-        string name = _config.GetChampionName(instId);
+        string path = _config.GetCharacterPath(instId);
+        string name = _config.GetCharacterName(instId);
         
         var character = GD.Load<PackedScene>(path).Instantiate<Character>();
 
-        character.Name = $"{name}_{entityId}"; 
-
-        character.EntityId = entityId;
+        character.Name = $"{name}_{ownerPeer}"; 
+        character.Reference = reference;
         character.OwnerPeer = ownerPeer;
 
-        character.Init(_store);
+        character.Init(_projFactory);
+
+        _repository.Add(reference, character);
 
         return character;
     }

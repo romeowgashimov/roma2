@@ -1,29 +1,28 @@
-using Friflo.Engine.ECS;
+using System;
 using Godot;
-using ROMA2.Client.Logic.Data;
-using ROMA2.Shared.Data;
 using ROMA2.Shared.Network;
 using ROMA2.Shared.Repositories;
 
 namespace ROMA2.Client.Logic.Core;
 
-public class ClientInputSyncFactory(
-    Node root, 
-    InputSynchronizerRepository syncRepository, 
-    EntityStore store, 
-    long myPeer)
-    : InputSynchronizerFactory(root, syncRepository)
+public class ClientInputSyncFactory : InputSynchronizerFactory, IDisposable
 {
-    protected override InputSynchronizer Spawn(long peer)
+    private NetworkBridge _bridge;
+
+    public ClientInputSyncFactory(
+        Node root, 
+        InputSynchronizerRepository syncRepository,
+        NetworkBridge bridge) : base(root, syncRepository)
     {
-        var sync = base.Spawn(peer);
+        _bridge = bridge;
 
-        if (myPeer == peer)
-        {
-            var entity = store.CreateEntity(new InputSynchronizerReference { OwnerPeer = peer });
-            entity.AddTag<LocalPlayerTag>();
-        }
+        _bridge.InputSyncCreation += Spawn;
+    }
+    
+    public void Dispose()
+    {
+        _bridge.InputSyncCreation -= Spawn;
 
-        return sync;
+        GC.SuppressFinalize(this);
     }
 }
