@@ -6,15 +6,18 @@
 [ext_resource type="Texture2D" uid="uid://bvxy7ljktkax4" path="res://icon.svg" id="4_p5xcm"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_dex8m"]
-properties/0/path = NodePath(".:NetworkRotation")
-properties/0/spawn = true
+properties/0/path = NodePath(".:AnimationState")
+properties/0/spawn = false
 properties/0/replication_mode = 2
 properties/1/path = NodePath(".:NetworkPosition")
 properties/1/spawn = true
-properties/1/replication_mode = 2
-properties/2/path = NodePath(".:AnimationState")
-properties/2/spawn = false
-properties/2/replication_mode = 2
+properties/1/replication_mode = 1
+properties/2/path = NodePath(".:NetworkQuaternion")
+properties/2/spawn = true
+properties/2/replication_mode = 1
+properties/3/path = NodePath(".:ServerTick")
+properties/3/spawn = true
+properties/3/replication_mode = 1
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_esjn7"]
 
@@ -134,9 +137,10 @@ Camera = NodePath("Camera3D")
 transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 0, -0.10833526, -1.7385613)
 
 [node name="Aim" type="Node2D" parent="." unique_id=258937717]
+position = Vector2(-45, 29)
 
 [node name="Sprite2D" type="Sprite2D" parent="Aim" unique_id=1627469793]
-position = Vector2(600, 300)
+position = Vector2(600, 310)
 scale = Vector2(0.285, 0.285)
 texture = ExtResource("4_p5xcm")
 

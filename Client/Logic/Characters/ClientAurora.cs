@@ -20,6 +20,7 @@ public partial class ClientAurora : Aurora, IClientPlayableCharacter
         base.Init(projFactory);
 
         AnimationStateChanged += this.Animate;
+        Synchronized += this.OnNetworkTickReceived;
     }
 
     public override void Tick(float delta)

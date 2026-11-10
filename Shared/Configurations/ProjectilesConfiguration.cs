@@ -7,7 +7,7 @@ namespace ROMA2.Shared.Configurations;
 
 public class ProjectilesConfiguration
 {
-    private Dictionary<int, string> _projectilesPaths = new()
+    private static Dictionary<int, string> _projectilesPaths = new()
     {
         { 1, "AuroraRangedAttack" },
     };
@@ -73,7 +73,7 @@ public class ProjectilesConfiguration
         throw new Exception($"Текущий тип: {type.Name} не зарегистрирован");
     }
 
-    public string GetProjectileName(int id)
+    public static string GetProjectileName(int id)
     {
         return _projectilesPaths[id];
     }

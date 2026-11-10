@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Godot;
 using ROMA2.Shared.Data;
 using ROMA2.Shared.Interfaces;
@@ -22,7 +23,7 @@ public abstract partial class Character : CharacterBody3D, INetworkTransform, IT
     protected readonly float _jumpVelocity = 4.5f;
 
     [Export] public Vector3 NetworkPosition { get; set; }
-    [Export] public Vector3 NetworkRotation { get; set; }
+    [Export] public Quaternion NetworkQuaternion { get; set; }
     [Export] public AnimationState AnimationState 
     { 
         get 
@@ -36,6 +37,20 @@ public abstract partial class Character : CharacterBody3D, INetworkTransform, IT
             AnimationStateChanged?.Invoke(value);
         }
     }
+    private uint _serverTick;
+    [Export] public uint ServerTick
+    {
+        get
+        {
+            return _serverTick;
+        }
+        set
+        {
+            _serverTick = value;
+
+            Synchronized?.Invoke(value);
+        }
+    }
 
     [Export] public float CurrentHealth { get; set; }
     public float MoveSpeed { get; set; } = 5;
@@ -44,7 +59,10 @@ public abstract partial class Character : CharacterBody3D, INetworkTransform, IT
     public int Reference { get; set; }
     public AnimationState PreviousAnimationState { get; set; }
     public abstract ClientInput Input { get; set; }
+    public List<NetworkState> StateBuffer { get; set; }
+    public float VirtualRenderTick { get; set; } = -1;
 
+    public event Action<float> Synchronized;
     public event Action<AnimationState> AnimationStateChanged;
 
     public int GetCollisions()
@@ -68,6 +86,7 @@ public abstract partial class Character : CharacterBody3D, INetworkTransform, IT
     {
         _projFactory = projFactory;
         AnimationState = AnimationState.Idle;
+        StateBuffer = new(10);
     }
 
     public abstract void Tick(float delta);

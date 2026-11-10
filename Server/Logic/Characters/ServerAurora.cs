@@ -35,6 +35,8 @@ public partial class ServerAurora : Aurora
         Move(delta);
         CalculateCooldown(delta);
         HandleRangedAttackDelay(delta);
+        
+        this.SynchronizeTransform();
     }
 
     public void CalculateCooldown(float delta)
@@ -65,7 +67,7 @@ public partial class ServerAurora : Aurora
     {
         _projFactory
             .Create(_rangedAttackConfigId)
-            .Init(_projFactory);
+            .Start(this);
 
         _isRangedAttacking = false;
         AnimationState = AnimationState.Idle;
@@ -109,7 +111,7 @@ public partial class ServerAurora : Aurora
 
         float targetRotationY = Mathf.Atan2(direction2D.X, direction2D.Y);
 
-        Vector3 currentRotation = NetworkRotation;
+        Vector3 currentRotation = Rotation;
         currentRotation.Y = targetRotationY;
         Rotation = currentRotation;
 
@@ -125,8 +127,5 @@ public partial class ServerAurora : Aurora
         }
 
         MoveAndSlide();
-
-        NetworkPosition = Position;
-        NetworkRotation = Rotation;
     }
 }

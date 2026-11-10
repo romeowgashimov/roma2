@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Godot;
 using MemoryPack;
@@ -6,6 +5,7 @@ using ROMA2.Shared.Configurations;
 using ROMA2.Shared.Data;
 using ROMA2.Shared.Network;
 using ROMA2.Shared.Repositories;
+using static ROMA2.Shared.Configurations.ProjectilesConfiguration;
 
 namespace ROMA2.Shared.Projectiles;
 
@@ -34,18 +34,14 @@ public abstract class ProjectileExtendedFactory
     public virtual Projectile Spawn(byte[] data)
     {
         var creationData = MemoryPackSerializer.Deserialize<ProjectileCreationData>(data);
-        int globalId = creationData.GlobalId;
+        int identifier = creationData.GlobalId;
         int reference = creationData.LocalId;
 
-        if (_projectilePools.TryGetValue(globalId, out var projectiles))
+        if (_projectilePools.TryGetValue(identifier, out var projectiles))
         {
             if (projectiles.TryPop(out var projectile))
             {
-                projectile.ProcessMode = Node.ProcessModeEnum.Inherit;
-                projectile.Name = ProjConfig.GetProjectileName(globalId) + $"_{reference}"; 
-                projectile.Sync.RootPath = "..";
-
-                projectile.Reference = reference;
+                EnableSynchronization(projectile, reference);
 
                 projectile.Clear();
 
@@ -53,35 +49,47 @@ public abstract class ProjectileExtendedFactory
                 return projectile;
             }
         }
-        else
-        {
-            _projectilePools[globalId] = new();
-        }
+        else _projectilePools[identifier] = new();
+        
 
         Projectile instance = ProjConfig
-                .GetProjectileScene(globalId)
+                .GetProjectileScene(identifier)
                 .Instantiate<Projectile>();
+
+        EnableSynchronization(instance, reference);
         
-        instance.Name = ProjConfig.GetProjectileName(globalId) + $"_{reference}";
-
-        instance.Reference = reference;
-
         instance.Position = instance.Position with { Y = instance.Position.Y + 2 };
 
         _parentRoot.AddChild(instance);
 
         _repository.Add(reference, instance);
 
+        instance.Init(this);
+
         return instance;
     }
 
     public virtual void Reset(int gloablId, int reference, Projectile projectile)
     {
-        var sync = projectile.Sync;
-        sync.RootPath = string.Empty;
-        projectile.ProcessMode = Node.ProcessModeEnum.Disabled;
+        DisableSynchronization(projectile);
+
         _repository.Remove(reference);
         
         _projectilePools[gloablId].Push(projectile);
+    }
+
+    private static void DisableSynchronization(Projectile projectile)
+    {
+        var sync = projectile.Sync;
+        sync.RootPath = string.Empty;
+        projectile.ProcessMode = Node.ProcessModeEnum.Disabled;
+    }
+
+    private static void EnableSynchronization(Projectile projectile, int reference)
+    {
+        projectile.ProcessMode = Node.ProcessModeEnum.Inherit;
+        projectile.Name = GetProjectileName(projectile.Identifier) + $"_{reference}"; 
+        projectile.Sync.RootPath = "..";
+        projectile.Reference = reference;
     }
 }
