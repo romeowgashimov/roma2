@@ -24,6 +24,8 @@ public abstract partial class Character : CharacterBody3D, INetworkTransform, IT
     protected readonly float _gravity = 9.8f; 
     protected readonly float _jumpVelocity = 4.5f;
 
+    [Export] public float RotationSmoothing = 10f;
+
     [Export] public Vector3 NetworkPosition { get; set; }
     [Export] public Quaternion NetworkQuaternion { get; set; }
     [Export] public AnimationState AnimationState 
@@ -65,8 +67,6 @@ public abstract partial class Character : CharacterBody3D, INetworkTransform, IT
     [Export] public float NetworkMaxSpeed { get; set; }
     public float ServerMaxSpeed { get; set; }
     [Export] public MultiplayerSynchronizer Synchronizer { get; set; }
-
-    [Export] public float RotationSpeedRadPerSec = Mathf.Pi * 10f; 
 
     public event Action<AnimationState> AnimationStateChanged;
 

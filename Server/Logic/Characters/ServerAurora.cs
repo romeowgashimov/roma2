@@ -78,16 +78,13 @@ public partial class ServerAurora : Aurora
     {
         float velocityY = Velocity.Y;
 
-        if (!IsOnFloor())
-        {
-            float dt = delta;
-            velocityY -= _gravity * dt; 
-        }
+        if (!IsOnFloor()) 
+            velocityY -= _gravity * delta;
         else 
         {
             if (velocityY < 0)
                 velocityY = 0;
-        
+
             if (Input.IsJumped)
                 velocityY = _jumpVelocity;
         }
@@ -99,21 +96,15 @@ public partial class ServerAurora : Aurora
         Vector3 right = forward.Cross(Vector3.Up).Normalized(); 
 
         Vector3 moveDirection = (forward * Input.WasdDirection.Y) + (right * Input.WasdDirection.X);
-        
+
         if (moveDirection.LengthSquared() > 0)
             moveDirection = moveDirection.Normalized();
-        
+
         Vector3 horizontalVelocity = moveDirection * MoveSpeed;
 
         Velocity = new Vector3(horizontalVelocity.X, velocityY, horizontalVelocity.Z);
 
-        Vector2 direction2D = new Vector2(Input.MouseDirection.X, Input.MouseDirection.Z).Normalized();
-
-        float targetRotationY = Mathf.Atan2(direction2D.X, direction2D.Y);
-
-        Vector3 currentRotation = Rotation;
-        currentRotation.Y = targetRotationY;
-        Rotation = currentRotation;
+        UpdateRotation(delta);
 
         switch (AnimationState)
         {
@@ -127,5 +118,23 @@ public partial class ServerAurora : Aurora
         }
 
         MoveAndSlide();
+    }
+
+    private void UpdateRotation(float delta)
+    {
+        var direction2D = new Vector2(Input.MouseDirection.X, Input.MouseDirection.Z);
+
+        if (direction2D.LengthSquared() < 0.0001f)
+            return;
+
+        direction2D = direction2D.Normalized();
+
+        float targetRotationY = Mathf.Atan2(direction2D.X, direction2D.Y);
+
+        float t = 1f - Mathf.Exp(-RotationSmoothing * delta);
+
+        Vector3 currentRotation = Rotation;
+        currentRotation.Y = Mathf.LerpAngle(currentRotation.Y, targetRotationY, t);
+        Rotation = currentRotation;
     }
 }
