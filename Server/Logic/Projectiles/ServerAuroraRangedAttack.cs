@@ -10,7 +10,6 @@ public partial class ServerAuroraRangedAttack : AuroraRangedAttack
     [Export] private float _lifetime;
     private float _currentTime;
     
-    public float MoveSpeed = 10;
     public Vector3 Direction;
 
     public override void Clear()
@@ -44,7 +43,7 @@ public partial class ServerAuroraRangedAttack : AuroraRangedAttack
         _currentTime += delta;
 
         if (_currentTime >= _lifetime)
-            _projFactory.Reset(Identifier, Reference, this);
+            _projFactory.Reset(this);
 
         this.SynchronizeTransform();
     }

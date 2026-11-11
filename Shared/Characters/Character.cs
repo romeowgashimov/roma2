@@ -18,6 +18,8 @@ public abstract partial class Character : CharacterBody3D, INetworkTransform, IT
     protected int _rangedAttackConfigId;
     protected AnimationState _animationState;
     protected ClientInput _input; 
+    [Export] private float _moveSpeed = 5f;
+    
 
     protected readonly float _gravity = 9.8f; 
     protected readonly float _jumpVelocity = 4.5f;
@@ -37,23 +39,22 @@ public abstract partial class Character : CharacterBody3D, INetworkTransform, IT
             AnimationStateChanged?.Invoke(value);
         }
     }
-    private uint _serverTick;
-    [Export] public uint ServerTick
+    [Export] public uint ServerTick { get; set; }
+
+    [Export] public float CurrentHealth { get; set; }
+    public float MoveSpeed 
     {
         get
         {
-            return _serverTick;
+            return _moveSpeed;
         }
         set
         {
-            _serverTick = value;
+            _moveSpeed = value;
 
-            Synchronized?.Invoke(value);
+            ServerMaxSpeed = value;
         }
     }
-
-    [Export] public float CurrentHealth { get; set; }
-    public float MoveSpeed { get; set; } = 5;
 
     public long OwnerPeer { get; set; }
     public int Reference { get; set; }
@@ -61,8 +62,12 @@ public abstract partial class Character : CharacterBody3D, INetworkTransform, IT
     public abstract ClientInput Input { get; set; }
     public List<NetworkState> StateBuffer { get; set; }
     public float VirtualRenderTick { get; set; } = -1;
+    [Export] public float NetworkMaxSpeed { get; set; }
+    public float ServerMaxSpeed { get; set; }
+    [Export] public MultiplayerSynchronizer Synchronizer { get; set; }
 
-    public event Action<float> Synchronized;
+    [Export] public float RotationSpeedRadPerSec = Mathf.Pi * 10f; 
+
     public event Action<AnimationState> AnimationStateChanged;
 
     public int GetCollisions()
@@ -87,6 +92,7 @@ public abstract partial class Character : CharacterBody3D, INetworkTransform, IT
         _projFactory = projFactory;
         AnimationState = AnimationState.Idle;
         StateBuffer = new(10);
+        MoveSpeed = _moveSpeed;
     }
 
     public abstract void Tick(float delta);

@@ -12,8 +12,23 @@ public abstract partial class Projectile : Area3D, ITickable, INetworkTransform
 {
     protected ProjectileExtendedFactory _projFactory;
 
+    [Export] private float _moveSpeed = 5f;
+    public float MoveSpeed 
+    {
+        get
+        {
+            return _moveSpeed;
+        }
+        set
+        {
+            _moveSpeed = value;
+
+            ServerMaxSpeed = value;
+        }
+    }
+
     private Vector3 _networkPreviousPosition;
-    [Export] public MultiplayerSynchronizer Sync;
+    [Export] public MultiplayerSynchronizer Synchronizer { get; set; }
 
     public int Identifier { get; init; }
     public int Reference { get; set; }
@@ -23,22 +38,10 @@ public abstract partial class Projectile : Area3D, ITickable, INetworkTransform
     [Export] public Quaternion NetworkQuaternion { get; set; }
     public List<NetworkState> StateBuffer { get; set; }
     public float VirtualRenderTick { get; set; } = -1;
-    private uint _serverTick;
-    [Export] public uint ServerTick
-    {
-        get
-        {
-            return _serverTick;
-        }
-        set
-        {
-            _serverTick = value;
+    [Export] public uint ServerTick { get; set; }
+    [Export] public float NetworkMaxSpeed { get; set; }
+    public float ServerMaxSpeed { get; set; }
 
-            Synchronized?.Invoke(value);
-        }
-    }
-
-    public event Action<float> Synchronized;
 
     protected Projectile()
     {
@@ -49,11 +52,7 @@ public abstract partial class Projectile : Area3D, ITickable, INetworkTransform
     {
         _projFactory = projFactory;
         StateBuffer = new(10);
-    }
-
-    public override void _EnterTree()
-    {
-        Sync.SetMultiplayerAuthority(1);
+        MoveSpeed = _moveSpeed;
     }
 
     public virtual void Start(Character owner) { }
@@ -64,5 +63,6 @@ public abstract partial class Projectile : Area3D, ITickable, INetworkTransform
     {
         VirtualRenderTick = -1;
         StateBuffer.Clear();
+        MoveSpeed = _moveSpeed;
     }
 }

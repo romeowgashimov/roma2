@@ -21,10 +21,10 @@ public class ServerProjectileFactory(
         return projectile;
     }
 
-    public override void Reset(int id, int localId, Projectile projectile)
+    public override void Reset(Projectile projectile)
     {
-        _bridge.Rpc(nameof(_bridge.OnProjectileDeleted), localId);
+        _bridge.Rpc(nameof(_bridge.OnProjectileDeleted), projectile.Reference);
 
-        base.Reset(id, localId, projectile);
+        base.Reset(projectile);
     }
 }

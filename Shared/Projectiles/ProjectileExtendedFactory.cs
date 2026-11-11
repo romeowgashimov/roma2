@@ -69,18 +69,18 @@ public abstract class ProjectileExtendedFactory
         return instance;
     }
 
-    public virtual void Reset(int gloablId, int reference, Projectile projectile)
+    public virtual void Reset(Projectile projectile)
     {
         DisableSynchronization(projectile);
 
-        _repository.Remove(reference);
+        _repository.Remove(projectile.Reference);
         
-        _projectilePools[gloablId].Push(projectile);
+        _projectilePools[projectile.Identifier].Push(projectile);
     }
 
     private static void DisableSynchronization(Projectile projectile)
     {
-        var sync = projectile.Sync;
+        var sync = projectile.Synchronizer;
         sync.RootPath = string.Empty;
         projectile.ProcessMode = Node.ProcessModeEnum.Disabled;
     }
@@ -89,7 +89,7 @@ public abstract class ProjectileExtendedFactory
     {
         projectile.ProcessMode = Node.ProcessModeEnum.Inherit;
         projectile.Name = GetProjectileName(projectile.Identifier) + $"_{reference}"; 
-        projectile.Sync.RootPath = "..";
+        projectile.Synchronizer.RootPath = "..";
         projectile.Reference = reference;
     }
 }

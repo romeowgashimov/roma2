@@ -10,7 +10,7 @@ public partial class ClientAuroraRangedAttack : AuroraRangedAttack
     {
         base.Init(projFactory);
 
-        Synchronized += this.OnNetworkTickReceived;
+        Synchronizer.Synchronized += this.OnNetworkTickReceived;
     }
 
     public override void Tick(float delta)

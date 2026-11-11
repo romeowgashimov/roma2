@@ -14,12 +14,15 @@ properties/1/replication_mode = 1
 properties/2/path = NodePath(".:ServerTick")
 properties/2/spawn = true
 properties/2/replication_mode = 1
+properties/3/path = NodePath(".:NetworkMaxSpeed")
+properties/3/spawn = true
+properties/3/replication_mode = 2
 
 [sub_resource type="SphereMesh" id="SphereMesh_esjn7"]
 
-[node name="AuroraRangedAttack" type="Area3D" unique_id=1456669545 node_paths=PackedStringArray("Sync")]
+[node name="AuroraRangedAttack" type="Area3D" unique_id=1456669545 node_paths=PackedStringArray("Synchronizer")]
 script = ExtResource("1_rxy3r")
-Sync = NodePath("MultiplayerSynchronizer")
+Synchronizer = NodePath("MultiplayerSynchronizer")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1105083533]
 shape = SubResource("SphereShape3D_esjn7")

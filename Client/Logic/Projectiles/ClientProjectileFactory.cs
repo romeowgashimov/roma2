@@ -28,18 +28,18 @@ public class ClientProjectileFactory : ProjectileExtendedFactory, IDisposable
         return projectile;
     }
 
-    public override void Reset(int id, int localId, Projectile projectile)
+    public override void Reset(Projectile projectile)
     {
-        base.Reset(id, localId, projectile);
+        base.Reset(projectile);
 
         projectile.Visible = false;
     }
 
-    public void Reset(int localId)
+    public void Reset(int reference)
     {
-        var projectile = _repository.Get(localId);
+        var projectile = _repository.Get(reference);
 
-        Reset(projectile.Identifier, localId, projectile);
+        Reset(projectile);
     }
 
     public void Dispose()
