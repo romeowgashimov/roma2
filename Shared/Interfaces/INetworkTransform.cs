@@ -9,7 +9,7 @@ public interface INetworkTransform
     /// <summary>
     /// Задержка интерполяции в тиках (~50 мс при 60 Гц).
     /// </summary>
-    const float INTERPOLATION_DELAY_TICKS = 3f;
+    const float INTERPOLATION_DELAY_TICKS = 2f;
 
     /// <summary>
     /// Тикрейт СЕРВЕРА.
@@ -40,6 +40,11 @@ public interface INetworkTransform
     /// Максимальная скорость персонажа, м/с — ДЕФОЛТ.
     /// </summary>
     const float MAX_SPEED_FALLBACK = 5f;
+
+    const float TIME_SYNC_DEADZONE = 0.25f;
+    const float MIN_TIME_SCALE = 0.97f;
+    const float MAX_TIME_SCALE = 1.03f;
+    const float TELEPORT_THRESHOLD = 15.0f;
 
     /// <summary>
     /// Актуальная максимальная скорость конкретного персонажа. 
