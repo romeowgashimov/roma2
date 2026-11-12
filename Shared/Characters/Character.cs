@@ -7,7 +7,7 @@ using ROMA2.Shared.Projectiles;
 
 namespace ROMA2.Shared.Characters;
 
-public abstract partial class Character : CharacterBody3D, INetworkTransform, ITickable
+public abstract partial class Character : CharacterBody3D, INetworkTransform, ITickable, IDamageable, IEffectable
 {
     protected ProjectileExtendedFactory _projFactory;
     [Export] protected float _rangedAttackCooldown = 0.5f;
@@ -16,10 +16,13 @@ public abstract partial class Character : CharacterBody3D, INetworkTransform, IT
     protected bool _isRangedAttacking;
     protected float _rangedAttackDelayTimer;
     protected int _rangedAttackConfigId;
-    protected AnimationState _animationState;
+    private AnimationState _animationState;
     protected float _rangedAttackAnimationCounter;
     protected ClientInput _input; 
-    
+    protected List<DamageCalculator> _damageCalculators;
+    private bool _isTicking;
+    private readonly List<Effect> _effects = new();
+    private readonly List<Effect> _toAdd = new();
 
     protected readonly float _gravity = 9.8f; 
     protected readonly float _jumpVelocity = 4.5f;
@@ -80,5 +83,76 @@ public abstract partial class Character : CharacterBody3D, INetworkTransform, IT
         StateBuffer = new(10);
     }
 
-    public abstract void Tick(float delta);
+    public virtual void Tick(float delta)
+    {
+        _isTicking = true;
+
+        for (int i = _effects.Count - 1; i >= 0; i--)
+        {
+            var effect = _effects[i];
+            if (effect.IsRemoved)
+            {
+                // Быстрое удаление O(1): ставим последний элемент на место удаляемого
+                int lastIndex = _effects.Count - 1;
+                _effects[i] = _effects[lastIndex];
+                _effects.RemoveAt(lastIndex);
+
+                effect.Clear();
+            }
+            else effect.Tick(delta);
+
+            if (effect.IsEnd)
+            {
+                // Быстрое удаление O(1): ставим последний элемент на место удаляемого
+                int lastIndex = _effects.Count - 1;
+                _effects[i] = _effects[lastIndex];
+                _effects.RemoveAt(lastIndex);
+
+                effect.Clear();
+            }
+        }
+
+        _isTicking = false;
+
+        if (_toAdd.Count > 0)
+        {
+            _effects.AddRange(_toAdd);
+            _toAdd.Clear();
+        }
+    }
+
+
+    public void TakeDamage(Damage damage)
+    {
+        foreach (var calculator in _damageCalculators)
+        {
+            calculator(ref damage);
+
+            if (damage.Amount <= 0)
+                break;
+        }
+
+        if (damage.Amount > 0)
+            ApplyFinalDamage(damage);
+    }
+
+    private void ApplyFinalDamage(Damage damage)
+    {
+        int finalDamage = (int)Math.Clamp(damage.Amount, 0, CurrentHealth);
+        CurrentHealth -= finalDamage;
+
+        if (damage.Sender is Character character)
+            // Мб, сделать интерфейс для тех, кому нужно отправлять обработанный урон,
+            // условным вампризмом могут обладать не только персонажи
+            // character.SendFinalDamage(damage); 
+
+        if (CurrentHealth <= 0)
+            QueueFree();
+    }
+
+    public void TakeEffect(Effect effect)
+    {
+        if (_isTicking) _toAdd.Add(effect);
+        else _effects.Add(effect);
+    }
 }
