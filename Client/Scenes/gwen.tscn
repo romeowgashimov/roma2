@@ -5,7 +5,7 @@
 [node name="gwen" unique_id=211063879 instance=ExtResource("1_a680k")]
 transform = Transform3D(0.05, 0, 0, 0, 0.05, 0, 0, 0, 0.05, 0, 0, 0)
 
-[node name="Skeleton3D" parent="Skeleton" parent_id_path=PackedInt32Array(501211351) index="0" unique_id=1903061561]
+[node name="Skeleton3D" parent="Skeleton" parent_id_path=PackedInt32Array(1552382060) index="0" unique_id=951200515]
 bones/0/rotation = Quaternion(-2.1579848e-05, 1, -2.1579848e-05, -2.1579848e-05)
 bones/1/position = Vector3(0, 16.855001, -0.55)
 bones/1/rotation = Quaternion(-2.1579848e-05, -2.1579848e-05, -2.1579848e-05, 1)

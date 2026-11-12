@@ -4,6 +4,7 @@ using ROMA2.Shared.Projectiles;
 using ROMA2.Shared.Data;
 using ROMA2.Server.Logic.Extensions;
 using Godot;
+using ROMA2.Server.Logic.Projectiles;
 
 namespace ROMA2.Server.Logic.Characters;
 
@@ -27,7 +28,7 @@ public partial class ServerAurora : Aurora
     {
         base.Init(factory);
 
-        _rangedAttackConfigId = ProjectilesConfiguration.GetProjectileId(typeof(AuroraRangedAttack));
+        _rangedAttackConfigId = ProjectilesConfiguration.GetProjectileId(typeof(ServerAuroraRangedAttack));
     }
 
     public override void Tick(float delta)
@@ -46,6 +47,11 @@ public partial class ServerAurora : Aurora
 
     private void HandleRangedAttackDelay(float delta)
     {
+        if (AnimationState == AnimationState.Attack && _rangedAttackAnimationCounter >= 1)
+            AnimationState = AnimationState.Idle;
+
+        _rangedAttackAnimationCounter += delta;
+
         if (!_isRangedAttacking) return;
 
         _rangedAttackDelayTimer += delta;
@@ -61,16 +67,36 @@ public partial class ServerAurora : Aurora
         _isRangedAttacking = true;
         AnimationState = AnimationState.Attack;
         _rangedAttackDelayTimer = 0f;
+        _rangedAttackAnimationCounter = 0f;
     }
 
     private void ExecuteProjectileCreation()
     {
-        _projFactory
-            .Create(_rangedAttackConfigId)
-            .Start(this);
+        var projectile = _projFactory.Create(_rangedAttackConfigId);
+
+        if (projectile is ServerAuroraRangedAttack auroraProj)
+{
+    auroraProj.Direction = Input.MouseDirection.Normalized();
+    
+
+    // 1. Сначала направляем снаряд в нужную сторону
+    Vector3 targetPoint = auroraProj.GlobalPosition + auroraProj.Direction;
+    if (!auroraProj.Direction.IsEqualApprox(Vector3.Up) && !auroraProj.Direction.IsEqualApprox(Vector3.Down))
+    {
+        auroraProj.LookAt(targetPoint, Vector3.Up);
+    }
+
+    int index = HorizontalAttack ? 0 : 1;
+float angleInRadians = Mathf.DegToRad(RotationOffsets[index].Z);
+projectile.Position = Position + PositionOffsets[index];
+auroraProj.RotateObjectLocal(Vector3.Forward, angleInRadians);
+
+    HorizontalAttack = !HorizontalAttack;
+}
+
 
         _isRangedAttacking = false;
-        AnimationState = AnimationState.Idle;
+        //AnimationState = AnimationState.Idle;
         _rangedAttackCurrentTime = 0f;
     }
 

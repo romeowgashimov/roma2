@@ -28,11 +28,6 @@ public partial class ServerAuroraRangedAttack : AuroraRangedAttack
     {
         CharacterOwner = owner;
 
-        Direction = CharacterOwner.Input.MouseDirection;
-
-        if (CharacterOwner is Aurora aurora)
-            aurora.WriteRangedAttackOffset(this);
-        
         Clear();
     }
 

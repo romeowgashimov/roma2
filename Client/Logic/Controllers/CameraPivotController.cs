@@ -29,15 +29,16 @@ public partial class CameraPivotController : Node3D
 
         Input.MouseMode = Input.MouseModeEnum.Captured;
         TopLevel = true;
+        Camera.Current = true;
     }
 
     public void Tick()
     {
         PitchInput = Mathf.Clamp(PitchInput, PitchMin, PitchMax);
 
-        Rotation = new Vector3(PitchInput, TwistInput, 0.0f);
-
         Position = _character.Position + (Transform.Basis * _offset);
+
+        Rotation = new Vector3(PitchInput, TwistInput, 0.0f);
     }
 
     public void Tick(Vector3 mouseDirection)

@@ -17,13 +17,15 @@ properties/2/replication_mode = 1
 properties/3/path = NodePath(".:ServerTick")
 properties/3/spawn = true
 properties/3/replication_mode = 1
-properties/4/path = NodePath(".:NetworkMaxSpeed")
+properties/4/path = NodePath(".:HorizontalAttack")
 properties/4/spawn = true
 properties/4/replication_mode = 2
 
 [node name="Aurora" type="CharacterBody3D" unique_id=86826339 node_paths=PackedStringArray("Synchronizer")]
 script = ExtResource("1_ht7mm")
-RotationThresholdRadians = 0.1
+PositionOffsets = PackedVector3Array(0, 0.3, 0, 0, 0, -0.015)
+RotationOffsets = PackedVector3Array(0, 0, 0, 0, 0, 90)
+_rangedAttackCooldown = 1.0
 Synchronizer = NodePath("MultiplayerSynchronizer")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1184932176]

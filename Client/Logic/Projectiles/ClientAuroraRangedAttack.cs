@@ -1,5 +1,4 @@
 using ROMA2.Client.Logic.Extensions;
-using ROMA2.Shared.Characters;
 using ROMA2.Shared.Projectiles;
 
 namespace ROMA2.Client.Logic.Projectiles;

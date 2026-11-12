@@ -9,13 +9,13 @@ public abstract partial class Aurora : Character
     public int MaxCutCount = 4;
 
     [Export] public bool HorizontalAttack;
-    [Export] public Vector3 PositionOffset;
+    [Export] public Vector3[] PositionOffsets = new Vector3[2];
     [Export] public Vector3[] RotationOffsets = new Vector3[2];
 
     public void WriteRangedAttackOffset(Projectile projectile)
     {
         int index = HorizontalAttack ? 0 : 1;
-        projectile.Position = Position + PositionOffset;
+        projectile.Position = Position + PositionOffsets[index];
         projectile.Rotation = RotationOffsets[index];
     }
 }

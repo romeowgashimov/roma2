@@ -1,0 +1,16 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://bkbhlcqj1ss10"]
+
+[ext_resource type="Shader" uid="uid://357nlcwth60x" path="res://Client/Visuals/Shaders/CutMaterial.gdshader" id="1_y4amj"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_y4amj")
+shader_parameter/color_top = Color(0.1, 0.8, 0.9, 1)
+shader_parameter/color_bottom = Color(0.6, 0.1, 0.9, 1)
+shader_parameter/color_fresnel = Color(0.07514127, 0.7266093, 0.6741224, 1)
+shader_parameter/speed = 1.2
+shader_parameter/wave_scale = 6.18000029029012
+shader_parameter/fresnel_power = 2.0
+shader_parameter/glow_strength = 2.5
+shader_parameter/fresnel_glow_boost = 5.0
+shader_parameter/pulse_speed = 2.0

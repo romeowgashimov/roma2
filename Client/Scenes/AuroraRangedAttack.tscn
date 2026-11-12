@@ -1,8 +1,10 @@
 [gd_scene format=3 uid="uid://dm80ld44yxrrq"]
 
 [ext_resource type="Script" uid="uid://bqt4flouwm5lx" path="res://Client/Logic/Projectiles/ClientAuroraRangedAttack.cs" id="1_rxy3r"]
+[ext_resource type="Material" uid="uid://bkbhlcqj1ss10" path="res://Client/Visuals/Shaders/CutMaterial.tres" id="2_5nbg6"]
 
-[sub_resource type="SphereShape3D" id="SphereShape3D_esjn7"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_lvgcf"]
+size = Vector3(1, 0.1, 0.1)
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_5nbg6"]
 properties/0/path = NodePath(".:NetworkPosition")
@@ -14,21 +16,20 @@ properties/1/replication_mode = 1
 properties/2/path = NodePath(".:ServerTick")
 properties/2/spawn = true
 properties/2/replication_mode = 1
-properties/3/path = NodePath(".:NetworkMaxSpeed")
-properties/3/spawn = true
-properties/3/replication_mode = 2
 
-[sub_resource type="SphereMesh" id="SphereMesh_esjn7"]
+[sub_resource type="BoxMesh" id="BoxMesh_n6dmi"]
+size = Vector3(1.5, 0.1, 0.1)
 
 [node name="AuroraRangedAttack" type="Area3D" unique_id=1456669545 node_paths=PackedStringArray("Synchronizer")]
 script = ExtResource("1_rxy3r")
 Synchronizer = NodePath("MultiplayerSynchronizer")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1105083533]
-shape = SubResource("SphereShape3D_esjn7")
+shape = SubResource("BoxShape3D_lvgcf")
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=1416991281]
 replication_config = SubResource("SceneReplicationConfig_5nbg6")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1575650117]
-mesh = SubResource("SphereMesh_esjn7")
+material_override = ExtResource("2_5nbg6")
+mesh = SubResource("BoxMesh_n6dmi")

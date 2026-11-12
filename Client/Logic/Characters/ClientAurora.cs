@@ -20,11 +20,23 @@ public partial class ClientAurora : Aurora, IClientPlayableCharacter
         base.Init(projFactory);
 
         AnimationStateChanged += this.Animate;
+        AnimationStateChanged += AnimateAuroraRangedAttack;
         Synchronizer.Synchronized += this.OnNetworkTickReceived;
     }
 
     public override void Tick(float delta)
     {
         this.InterpolateTransform(delta);
+    }
+
+    private void AnimateAuroraRangedAttack(AnimationState state)
+    {
+        if (state == AnimationState.Attack)
+        {
+            PreviousAnimationState = state;
+
+            if (HorizontalAttack) AnimationPlayer.Play("Attack1");
+            else AnimationPlayer.Play("Crit");
+        }
     }
 }

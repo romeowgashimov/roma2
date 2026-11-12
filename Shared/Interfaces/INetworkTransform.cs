@@ -22,41 +22,14 @@ public interface INetworkTransform
     const float TIME_SYNC_GAIN = 0.1f;
 
     /// <summary>
-    /// Насколько тиков рендер-тик может обогнать самый свежий тик в буфере. 
-    /// </summary>
-    const float MAX_EXTRAPOLATION_TICKS = 2f;
-
-    /// <summary>
-    /// Допуск экстраполяции фактора t — ВТОРИЧНЫЙ предел (основной — по дистанции).
-    /// </summary>
-    const float MAX_EXTRAPOLATION_SLACK = 0.25f;
-
-    /// <summary>
-    /// Страховка от разрастания буфера при бурстах пакетов. 
+    /// Страховка от разрастания буфера при бурстах пакетов.
     /// </summary>
     const int MAX_BUFFER_STATES = 32;
-
-    /// <summary>
-    /// Максимальная скорость персонажа, м/с — ДЕФОЛТ.
-    /// </summary>
-    const float MAX_SPEED_FALLBACK = 5f;
 
     const float TIME_SYNC_DEADZONE = 0.25f;
     const float MIN_TIME_SCALE = 0.97f;
     const float MAX_TIME_SCALE = 1.03f;
     const float TELEPORT_THRESHOLD = 15.0f;
-
-    /// <summary>
-    /// Актуальная максимальная скорость конкретного персонажа. 
-    /// <= 0 — использовать MAX_SPEED_FALLBACK.
-    /// </summary>
-    float NetworkMaxSpeed { get; set; }
-
-    /// <summary>
-    /// Текущая максимальная скорость на сервере, 
-    /// Нужно, чтобы сервер постоянно не отправлял одно и то же значение.
-    /// </summary>
-    float ServerMaxSpeed { get; set; }
 
     uint ServerTick { get; set; }
     float VirtualRenderTick { get; set; }

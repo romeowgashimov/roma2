@@ -17,8 +17,8 @@ public abstract partial class Character : CharacterBody3D, INetworkTransform, IT
     protected float _rangedAttackDelayTimer;
     protected int _rangedAttackConfigId;
     protected AnimationState _animationState;
+    protected float _rangedAttackAnimationCounter;
     protected ClientInput _input; 
-    [Export] private float _moveSpeed = 5f;
     
 
     protected readonly float _gravity = 9.8f; 
@@ -44,19 +44,7 @@ public abstract partial class Character : CharacterBody3D, INetworkTransform, IT
     [Export] public uint ServerTick { get; set; }
 
     [Export] public float CurrentHealth { get; set; }
-    public float MoveSpeed 
-    {
-        get
-        {
-            return _moveSpeed;
-        }
-        set
-        {
-            _moveSpeed = value;
-
-            ServerMaxSpeed = value;
-        }
-    }
+    [Export] public float MoveSpeed { get; set; } = 5;
 
     public long OwnerPeer { get; set; }
     public int Reference { get; set; }
@@ -64,8 +52,6 @@ public abstract partial class Character : CharacterBody3D, INetworkTransform, IT
     public abstract ClientInput Input { get; set; }
     public List<NetworkState> StateBuffer { get; set; }
     public float VirtualRenderTick { get; set; } = -1;
-    [Export] public float NetworkMaxSpeed { get; set; }
-    public float ServerMaxSpeed { get; set; }
     [Export] public MultiplayerSynchronizer Synchronizer { get; set; }
 
     public event Action<AnimationState> AnimationStateChanged;
@@ -92,7 +78,6 @@ public abstract partial class Character : CharacterBody3D, INetworkTransform, IT
         _projFactory = projFactory;
         AnimationState = AnimationState.Idle;
         StateBuffer = new(10);
-        MoveSpeed = _moveSpeed;
     }
 
     public abstract void Tick(float delta);
