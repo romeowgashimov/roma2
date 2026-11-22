@@ -3,13 +3,18 @@ using ROMA2.Shared.Configurations;
 using ROMA2.Shared.Projectiles;
 using ROMA2.Shared.Data;
 using ROMA2.Server.Logic.Extensions;
-using Godot;
 using ROMA2.Server.Logic.Projectiles;
+using Godot;
+using System.Collections.Generic;
 
 namespace ROMA2.Server.Logic.Characters;
 
 public partial class ServerAurora : Aurora
 {
+    [Export] public Area3D RazreziArea; 
+    private readonly HashSet<Node3D> _hitTargetsThisCut = new();
+    [Export] public float MinRequiredDot = 0.5f;
+
     public override ClientInput Input
     {
         get
@@ -19,9 +24,19 @@ public partial class ServerAurora : Aurora
         set
         {
             if (value.IsPressed) RangedAttack();
+            if (value.IsKey1Pressed && !_input.IsKey1Pressed) Rpc(nameof(Razrezi));
 
             _input = value;
         }
+    }
+
+    protected override void Razrezi()
+    {
+        AnimationState = AnimationState.Cast;
+        CastOrUseAbilityIndex = 1;
+
+        _razreziProgressionTime = RAZREZI_PROGRESSION_TIME;
+        _cutCountProgression = CutCount + DEFAULT_CUT_COUNT;
     }
 
     public override void Init(ProjectileExtendedFactory factory)
@@ -31,11 +46,12 @@ public partial class ServerAurora : Aurora
         _rangedAttackConfigId = ProjectilesConfiguration.GetProjectileId(typeof(ServerAuroraRangedAttack));
     }
 
-    public override void Tick(float delta)
+    protected override void OnTick(float delta)
     {
-        Move(delta);
         CalculateCooldown(delta);
         HandleRangedAttackDelay(delta);
+        HandleRazreziProgression(delta);
+        this.Move(delta);
         
         this.SynchronizeTransform();
     }
@@ -43,15 +59,11 @@ public partial class ServerAurora : Aurora
     public void CalculateCooldown(float delta)
     {
         if (!_isRangedAttacking) _rangedAttackCurrentTime += delta;
+        if (CastOrUseAbilityIndex == 1) UpdateRazreziAnimationCooldown(delta);
     }
 
     private void HandleRangedAttackDelay(float delta)
     {
-        if (AnimationState == AnimationState.Attack && _rangedAttackAnimationCounter >= 1)
-            AnimationState = AnimationState.Idle;
-
-        _rangedAttackAnimationCounter += delta;
-
         if (!_isRangedAttacking) return;
 
         _rangedAttackDelayTimer += delta;
@@ -67,100 +79,71 @@ public partial class ServerAurora : Aurora
         _isRangedAttacking = true;
         AnimationState = AnimationState.Attack;
         _rangedAttackDelayTimer = 0f;
-        _rangedAttackAnimationCounter = 0f;
     }
 
     private void ExecuteProjectileCreation()
     {
         var projectile = _projFactory.Create(_rangedAttackConfigId);
 
-        if (projectile is ServerAuroraRangedAttack auroraProj)
-{
-    auroraProj.Direction = Input.MouseDirection.Normalized();
-    
+        WriteRangedAttackOffset(projectile);
 
-    // 1. Сначала направляем снаряд в нужную сторону
-    Vector3 targetPoint = auroraProj.GlobalPosition + auroraProj.Direction;
-    if (!auroraProj.Direction.IsEqualApprox(Vector3.Up) && !auroraProj.Direction.IsEqualApprox(Vector3.Down))
-    {
-        auroraProj.LookAt(targetPoint, Vector3.Up);
-    }
-
-    int index = HorizontalAttack ? 0 : 1;
-float angleInRadians = Mathf.DegToRad(RotationOffsets[index].Z);
-projectile.Position = Position + PositionOffsets[index];
-auroraProj.RotateObjectLocal(Vector3.Forward, angleInRadians);
-
-    HorizontalAttack = !HorizontalAttack;
-}
-
+        Rpc(nameof(SetHorizontalAttack), !HorizontalAttack);
 
         _isRangedAttacking = false;
-        //AnimationState = AnimationState.Idle;
         _rangedAttackCurrentTime = 0f;
+        AnimationState = AnimationState.Idle;
     }
 
-    private void Move(float delta)
+    private void HandleRazreziProgression(float delta)
     {
-        float velocityY = Velocity.Y;
-
-        if (!IsOnFloor()) 
-            velocityY -= _gravity * delta;
-        else 
-        {
-            if (velocityY < 0)
-                velocityY = 0;
-
-            if (Input.IsJumped)
-                velocityY = _jumpVelocity;
-        }
-
-        Vector3 forward = Input.MouseDirection;
-        forward.Y = 0;
-        forward = forward.Normalized();
-
-        Vector3 right = forward.Cross(Vector3.Up).Normalized(); 
-
-        Vector3 moveDirection = (forward * Input.WasdDirection.Y) + (right * Input.WasdDirection.X);
-
-        if (moveDirection.LengthSquared() > 0)
-            moveDirection = moveDirection.Normalized();
-
-        Vector3 horizontalVelocity = moveDirection * MoveSpeed;
-
-        Velocity = new Vector3(horizontalVelocity.X, velocityY, horizontalVelocity.Z);
-
-        UpdateRotation(delta);
-
-        switch (AnimationState)
-        {
-            case AnimationState.Idle when Velocity.LengthSquared() >= 0.25f:
-                AnimationState = AnimationState.Walk;
-                break;
-
-            case AnimationState.Walk when Velocity.LengthSquared() < 0.25f:
-                AnimationState = AnimationState.Idle;
-                break;
-        }
-
-        MoveAndSlide();
-    }
-
-    private void UpdateRotation(float delta)
-    {
-        var direction2D = new Vector2(Input.MouseDirection.X, Input.MouseDirection.Z);
-
-        if (direction2D.LengthSquared() < 0.0001f)
+        if (CastOrUseAbilityIndex != 1 || _razreziAnimationEndCounter > RazreziEndTime) 
             return;
 
-        direction2D = direction2D.Normalized();
+        if (_razreziProgressionTime < RAZREZI_PROGRESSION_TIME)
+        {
+            _razreziProgressionTime += delta;
+            return;
+        }
+        else if (_cutCountProgression > 0)
+        {
+            _razreziProgressionTime = 0f;
 
-        float targetRotationY = Mathf.Atan2(direction2D.X, direction2D.Y);
+            _hitTargetsThisCut.Clear();
 
-        float t = 1f - Mathf.Exp(-RotationSmoothing * delta);
+            Vector3 forward = Input.MouseDirection.Normalized();
 
-        Vector3 currentRotation = Rotation;
-        currentRotation.Y = Mathf.LerpAngle(currentRotation.Y, targetRotationY, t);
-        Rotation = currentRotation;
+            // Получаем все тела, которые прямо сейчас пересекаются со сферой
+            var bodies = RazreziArea.GetOverlappingBodies();
+
+            foreach (Node3D body in bodies)
+            {
+                if (body == this || _hitTargetsThisCut.Contains(body)) 
+                    continue;
+                // Проверка команды:
+                // if (body is Character enemy && enemy.Team == myTeam) continue;
+
+                // Вектор от нас до цели (игнорируем разницу по высоте Y, если конус плоский)
+                Vector3 direction = body.GlobalPosition - GlobalPosition;
+                direction.Y = 0; 
+                direction = direction.Normalized();
+
+                float dotProduct = forward.Dot(direction);
+
+                if (dotProduct >= MinRequiredDot)
+                {
+                    // Запоминаем цель, чтобы не ударить повторно за этот же взмах
+                    _hitTargetsThisCut.Add(body);
+
+                    if (dotProduct >= 0.9f)
+                        GD.Print($"Чистый урон по: {body.Name}");
+                    else
+                        GD.Print($"Магический урон по: {body.Name}");
+                }
+            }
+
+            _cutCountProgression--;
+            
+            //if (CutCount <= 4 && CutCount > 0) Rpc(nameof(SetCutCount), CutCount - 1);
+        }
     }
 }

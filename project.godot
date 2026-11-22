@@ -87,6 +87,13 @@ share_ally2={
 ]
 }
 
+[layer_names]
+
+3d_physics/layer_1="Ground"
+3d_physics/layer_2="Character"
+3d_physics/layer_3="RangedAttack"
+3d_physics/layer_4="Ability"
+
 [physics]
 
 3d/physics_engine="Jolt Physics"

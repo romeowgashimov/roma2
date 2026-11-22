@@ -17,12 +17,14 @@ properties/2/replication_mode = 1
 properties/3/path = NodePath(".:ServerTick")
 properties/3/spawn = true
 properties/3/replication_mode = 1
-properties/4/path = NodePath(".:HorizontalAttack")
-properties/4/spawn = true
-properties/4/replication_mode = 2
 
-[node name="Aurora" type="CharacterBody3D" unique_id=86826339 node_paths=PackedStringArray("Synchronizer")]
+[sub_resource type="SphereShape3D" id="SphereShape3D_esjn7"]
+
+[node name="Aurora" type="CharacterBody3D" unique_id=86826339 node_paths=PackedStringArray("RazreziArea", "Synchronizer")]
+collision_layer = 2
+collision_mask = 3
 script = ExtResource("1_ht7mm")
+RazreziArea = NodePath("Area3D")
 PositionOffsets = PackedVector3Array(0, 0.3, 0, 0, 0, -0.015)
 RotationOffsets = PackedVector3Array(0, 0, 0, 0, 0, 90)
 _rangedAttackCooldown = 1.0
@@ -35,3 +37,11 @@ shape = SubResource("CapsuleShape3D_esjn7")
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=337425088]
 replication_config = SubResource("SceneReplicationConfig_ht7mm")
+
+[node name="Area3D" type="Area3D" parent="." unique_id=1820030479]
+collision_layer = 8
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" unique_id=1248750544]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
+shape = SubResource("SphereShape3D_esjn7")

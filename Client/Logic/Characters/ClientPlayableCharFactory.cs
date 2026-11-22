@@ -24,6 +24,11 @@ public class ClientPlayableCharFactory(
 
         if (character is IClientPlayableCharacter playable)
         {
+            playable.AnimationStateMachine = playable
+                .AnimationTree
+                .Get("parameters/StateMachine/playback")
+                .As<AnimationNodeStateMachinePlayback>();
+
             pivotRepository.Add(character.OwnerPeer, playable.PivotController);
 
             if (character.OwnerPeer == GlobalConfiguration.MyPeer)

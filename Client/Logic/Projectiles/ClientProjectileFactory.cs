@@ -1,5 +1,6 @@
 using System;
 using Godot;
+using ROMA2.Client.Logic.Extensions;
 using ROMA2.Shared.Configurations;
 using ROMA2.Shared.Network;
 using ROMA2.Shared.Projectiles;
@@ -9,6 +10,7 @@ namespace ROMA2.Client.Logic.Projectiles;
 
 public class ClientProjectileFactory : ProjectileExtendedFactory, IDisposable
 {
+    private static readonly Vector3 UTILIZATION_POSITION = new(1000f, 1000f, 1000f); 
     public ClientProjectileFactory(
         ProjectilesConfiguration projCong, 
         NetworkBridge bridge,
@@ -33,6 +35,8 @@ public class ClientProjectileFactory : ProjectileExtendedFactory, IDisposable
         base.Reset(projectile);
 
         projectile.Visible = false;
+
+        projectile.Position = UTILIZATION_POSITION;
     }
 
     public void Reset(int reference)

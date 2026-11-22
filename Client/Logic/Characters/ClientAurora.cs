@@ -12,8 +12,9 @@ public partial class ClientAurora : Aurora, IClientPlayableCharacter
 {
     [Export] public Camera3D Camera { get; set; }
     [Export] public CameraPivotController PivotController { get; set; }
-    [Export] public AnimationPlayer AnimationPlayer { get; set; }
+    [Export] public AnimationTree AnimationTree { get; set; }
     public override ClientInput Input { get; set; }
+    public AnimationNodeStateMachinePlayback AnimationStateMachine { get; set; }
 
     public override void Init(ProjectileExtendedFactory projFactory)
     {
@@ -24,9 +25,16 @@ public partial class ClientAurora : Aurora, IClientPlayableCharacter
         Synchronizer.Synchronized += this.OnNetworkTickReceived;
     }
 
-    public override void Tick(float delta)
+    protected override void OnTick(float delta)
     {
         this.InterpolateTransform(delta);
+    }
+
+    protected override void Razrezi()
+    {
+        PreviousAnimationState = AnimationState.Cast;
+
+        AnimationStateMachine.Travel(CutCount.ToString());
     }
 
     private void AnimateAuroraRangedAttack(AnimationState state)
@@ -35,8 +43,8 @@ public partial class ClientAurora : Aurora, IClientPlayableCharacter
         {
             PreviousAnimationState = state;
 
-            if (HorizontalAttack) AnimationPlayer.Play("Attack1");
-            else AnimationPlayer.Play("Crit");
+            if (HorizontalAttack) AnimationStateMachine.Travel("Attack1");
+            else AnimationStateMachine.Travel("Crit");
         }
     }
 }

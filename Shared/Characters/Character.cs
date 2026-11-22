@@ -17,15 +17,14 @@ public abstract partial class Character : CharacterBody3D, INetworkTransform, IT
     protected float _rangedAttackDelayTimer;
     protected int _rangedAttackConfigId;
     private AnimationState _animationState;
-    protected float _rangedAttackAnimationCounter;
     protected ClientInput _input; 
     protected List<DamageCalculator> _damageCalculators;
     private bool _isTicking;
     private readonly List<Effect> _effects = new();
     private readonly List<Effect> _toAdd = new();
 
-    protected readonly float _gravity = 9.8f; 
-    protected readonly float _jumpVelocity = 4.5f;
+    public readonly float Gravity = 9.8f; 
+    public readonly float JumpVelocity = 4.5f;
 
     [Export] public float RotationSmoothing = 10f;
 
@@ -44,6 +43,7 @@ public abstract partial class Character : CharacterBody3D, INetworkTransform, IT
             AnimationStateChanged?.Invoke(value);
         }
     }
+    [Export] public byte CastOrUseAbilityIndex { get; set; } = byte.MinValue;
     [Export] public uint ServerTick { get; set; }
 
     [Export] public float CurrentHealth { get; set; }
@@ -83,25 +83,17 @@ public abstract partial class Character : CharacterBody3D, INetworkTransform, IT
         StateBuffer = new(10);
     }
 
-    public virtual void Tick(float delta)
+    public void Tick(float delta)
     {
         _isTicking = true;
 
         for (int i = _effects.Count - 1; i >= 0; i--)
         {
             var effect = _effects[i];
-            if (effect.IsRemoved)
-            {
-                // Быстрое удаление O(1): ставим последний элемент на место удаляемого
-                int lastIndex = _effects.Count - 1;
-                _effects[i] = _effects[lastIndex];
-                _effects.RemoveAt(lastIndex);
+            
+            effect.Tick(delta);
 
-                effect.Clear();
-            }
-            else effect.Tick(delta);
-
-            if (effect.IsEnd)
+            if (effect.IsEnd || (!effect.Immutable && effect.IsRemoved))
             {
                 // Быстрое удаление O(1): ставим последний элемент на место удаляемого
                 int lastIndex = _effects.Count - 1;
@@ -119,8 +111,11 @@ public abstract partial class Character : CharacterBody3D, INetworkTransform, IT
             _effects.AddRange(_toAdd);
             _toAdd.Clear();
         }
+
+        OnTick(delta);
     }
 
+    protected virtual void OnTick(float delta) { }
 
     public void TakeDamage(Damage damage)
     {

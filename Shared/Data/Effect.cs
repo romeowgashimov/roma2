@@ -9,6 +9,7 @@ public abstract class Effect : ITickable
     public float CurrentTime { get; private set; }
     public bool IsEnd => CurrentTime >= EndTime;
     public bool IsRemoved { get; set; }
+    public bool Immutable { get; set; }
 
     public abstract void Init(Character character);
 

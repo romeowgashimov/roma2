@@ -1,3 +1,4 @@
+using Godot;
 using ROMA2.Client.Logic.Interfaces;
 using ROMA2.Shared.Characters;
 using ROMA2.Shared.Data;
@@ -6,6 +7,9 @@ namespace ROMA2.Client.Logic.Extensions;
 
 public static class CharacterExtensions
 {
+    private const string IDLE_STATE = "Idle_anm"; 
+    private const string WALK_STATE = "Run_anm";
+
     public static void Animate(this Character character, AnimationState state)
     {
         if (character.PreviousAnimationState == character.AnimationState) return;
@@ -14,12 +18,12 @@ public static class CharacterExtensions
             switch (character.AnimationState)
             {
                 case AnimationState.Idle:
-                    clientCharacter.AnimationPlayer.Play("Idle_anm");
+                    clientCharacter.AnimationStateMachine.Travel(IDLE_STATE);
                     character.PreviousAnimationState = character.AnimationState;
                     break;
                     
                 case AnimationState.Walk:
-                    clientCharacter.AnimationPlayer.Play("Run_anm");
+                    clientCharacter.AnimationStateMachine.Travel(WALK_STATE);
                     character.PreviousAnimationState = character.AnimationState;
                     break;
             }

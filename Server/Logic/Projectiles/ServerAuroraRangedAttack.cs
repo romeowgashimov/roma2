@@ -9,8 +9,6 @@ public partial class ServerAuroraRangedAttack : AuroraRangedAttack
 {
     [Export] private float _lifetime;
     private float _currentTime;
-    
-    public Vector3 Direction;
 
     public override void Clear()
     {
