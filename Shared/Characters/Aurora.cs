@@ -50,7 +50,6 @@ public abstract partial class Aurora : Character
     public void SetCutCount(byte cutCount)
     {
         if (cutCount > 4) cutCount = 4;
-        GD.Print(cutCount);
 
         CutCount = cutCount;
     }

@@ -5,4 +5,6 @@ namespace ROMA2.Shared.Interfaces;
 public interface IEffectable
 {
     void TakeEffect(Effect effect);
+    
+    Effect GetEffect(int identifier); 
 }

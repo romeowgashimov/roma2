@@ -39,6 +39,16 @@ public static class NetworkTransformExtensions
         float t = denominator > 0f ? (renderTick - lhs.Tick) / denominator : 1f;
         t = Mathf.Clamp(t, 0f, 1f);
 
+        // Проверяем, нормализован ли кватернион
+        if (!lhs.Rotation.IsNormalized())
+        {
+        	// Проверяем, не равен ли он нулю (длину нулевого кватерниона нельзя нормализовать)
+        	if (lhs.Rotation.LengthSquared() > 0.0001f)
+        		lhs.Rotation = lhs.Rotation.Normalized(); // Безопасно нормализуем
+        	else
+        		lhs.Rotation = Quaternion.Identity; // Если он нулевой или NaN — сбрасываем в стандартный поворот
+        }
+
         var rot = lhs.Rotation.Slerp(rhs.Rotation, t);
         Vector3 pos = lhs.Position.Lerp(rhs.Position, t);
 

@@ -1,3 +1,5 @@
+using System;
+using System.Threading.Tasks;
 using Godot;
 using ROMA2.Client.Logic.Controllers;
 using ROMA2.Client.Logic.Extensions;
@@ -37,7 +39,7 @@ public partial class ClientAurora : Aurora, IClientPlayableCharacter
         AnimationStateMachine.Travel(CutCount.ToString());
     }
 
-    private void AnimateAuroraRangedAttack(AnimationState state)
+    private async void AnimateAuroraRangedAttack(AnimationState state)
     {
         if (state == AnimationState.Attack)
         {
@@ -45,6 +47,17 @@ public partial class ClientAurora : Aurora, IClientPlayableCharacter
 
             if (HorizontalAttack) AnimationStateMachine.Travel("Attack1");
             else AnimationStateMachine.Travel("Crit");
+        }
+
+        // Здесь предыдущее состояние не храним, 
+        // так как сами настраиваем переход на предыдущую анимацию
+        if (state == AnimationState.Cast && CastOrUseAbilityIndex == 2)
+        {
+            AnimationStateMachine.Travel("Spell2");
+
+            await Task.Delay(TimeSpan.FromSeconds(0.25));
+
+            this.Animate(PreviousAnimationState);
         }
     }
 }

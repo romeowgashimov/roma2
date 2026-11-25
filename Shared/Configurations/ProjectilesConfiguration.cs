@@ -10,10 +10,14 @@ public class ProjectilesConfiguration
     private static Dictionary<int, string> _projectilesPaths = new()
     {
         { 1, "AuroraRangedAttack" },
+        { 2, "TUMAN" },
+        { 3, "Needle" }
     };
     private static Dictionary<Type, int> _ids = new()
     {
-        { typeof(AuroraRangedAttack), 1 }
+        { typeof(AuroraRangedAttack), 1 },
+        { typeof(Tuman), 2 },
+        { typeof(Needle), 3 }
     };
     private Dictionary<int, PackedScene> _cachedProjectiles;
     private bool _isServer;
@@ -57,7 +61,7 @@ public class ProjectilesConfiguration
         return packedScene;
     }
 
-    public static int GetProjectileId<T>(T projectile) where T : Projectile
+    public static int GetProjectileId(Projectile projectile)
     {
         Type currentType = projectile.GetType();
 

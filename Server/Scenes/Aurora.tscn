@@ -5,18 +5,21 @@
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_esjn7"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_ht7mm"]
-properties/0/path = NodePath(".:AnimationState")
+properties/0/path = NodePath(".:NetworkPosition")
 properties/0/spawn = true
-properties/0/replication_mode = 2
-properties/1/path = NodePath(".:NetworkPosition")
+properties/0/replication_mode = 1
+properties/1/path = NodePath(".:NetworkQuaternion")
 properties/1/spawn = true
 properties/1/replication_mode = 1
-properties/2/path = NodePath(".:NetworkQuaternion")
+properties/2/path = NodePath(".:ServerTick")
 properties/2/spawn = true
 properties/2/replication_mode = 1
-properties/3/path = NodePath(".:ServerTick")
+properties/3/path = NodePath(".:CastOrUseAbilityIndex")
 properties/3/spawn = true
-properties/3/replication_mode = 1
+properties/3/replication_mode = 2
+properties/4/path = NodePath(".:AnimationState")
+properties/4/spawn = true
+properties/4/replication_mode = 2
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_esjn7"]
 
@@ -25,6 +28,7 @@ collision_layer = 2
 collision_mask = 3
 script = ExtResource("1_ht7mm")
 RazreziArea = NodePath("Area3D")
+SpawnNeedlePositions = PackedVector3Array(-1.5, 0.5, 0, 0, 0.5, -1.5, 1.5, 0.5, 0, 0, 0.5, 1.5, 1.5, 0.5, 1.5, -1.5, 0.5, -1.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 PositionOffsets = PackedVector3Array(0, 0.3, 0, 0, 0, -0.015)
 RotationOffsets = PackedVector3Array(0, 0, 0, 0, 0, 90)
 _rangedAttackCooldown = 1.0

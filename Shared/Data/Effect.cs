@@ -7,9 +7,15 @@ public abstract class Effect : ITickable
 {
     public float EndTime { get; set; }
     public float CurrentTime { get; private set; }
-    public bool IsEnd => CurrentTime >= EndTime;
-    public bool IsRemoved { get; set; }
+    public bool End => CurrentTime >= EndTime;
+    public bool Removed { get; set; }
     public bool Immutable { get; set; }
+    public int Identifier { get; init; }
+
+    public Effect()
+    {
+        // Identifier = EffectFactory.GetEffectIdentifier(this);
+    }
 
     public abstract void Init(Character character);
 

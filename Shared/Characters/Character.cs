@@ -93,7 +93,7 @@ public abstract partial class Character : CharacterBody3D, INetworkTransform, IT
             
             effect.Tick(delta);
 
-            if (effect.IsEnd || (!effect.Immutable && effect.IsRemoved))
+            if (effect.End || (!effect.Immutable && effect.Removed))
             {
                 // Быстрое удаление O(1): ставим последний элемент на место удаляемого
                 int lastIndex = _effects.Count - 1;
@@ -149,5 +149,10 @@ public abstract partial class Character : CharacterBody3D, INetworkTransform, IT
     {
         if (_isTicking) _toAdd.Add(effect);
         else _effects.Add(effect);
+    }
+
+    public Effect GetEffect(int identifier)
+    {
+        return _effects.Find(x => x.Identifier == identifier);
     }
 }

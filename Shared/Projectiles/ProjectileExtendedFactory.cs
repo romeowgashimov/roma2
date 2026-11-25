@@ -92,4 +92,9 @@ public abstract class ProjectileExtendedFactory
         projectile.Synchronizer.RootPath = "..";
         projectile.Reference = reference;
     }
+
+    public Projectile GetActiveProjectile(int reference)
+    {
+        return _repository.Get(reference);
+    }
 }

@@ -12,10 +12,8 @@ public static class CharacterExtensions
 
     public static void Animate(this Character character, AnimationState state)
     {
-        if (character.PreviousAnimationState == character.AnimationState) return;
-
         if (character is IClientCharacter clientCharacter)
-            switch (character.AnimationState)
+            switch (state)
             {
                 case AnimationState.Idle:
                     clientCharacter.AnimationStateMachine.Travel(IDLE_STATE);

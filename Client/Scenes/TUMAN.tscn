@@ -1,0 +1,37 @@
+[gd_scene format=3 uid="uid://dppen58kb5sgt"]
+
+[ext_resource type="Material" uid="uid://b7ab61y23roxu" path="res://Client/Visuals/Shaders/TUMANMaterial.tres" id="1_fasne"]
+[ext_resource type="Script" uid="uid://dis6j6nr7iwok" path="res://Client/Logic/Projectiles/ClientTuman.cs" id="1_h6km6"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_esjn7"]
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_4hv2t"]
+properties/0/path = NodePath(".:NetworkPosition")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+properties/1/path = NodePath(".:NetworkQuaternion")
+properties/1/spawn = true
+properties/1/replication_mode = 1
+properties/2/path = NodePath(".:ServerTick")
+properties/2/spawn = true
+properties/2/replication_mode = 1
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_esjn7"]
+
+[node name="Tuman" type="Area3D" unique_id=1651868580 node_paths=PackedStringArray("_mesh", "Synchronizer")]
+collision_mask = 14
+script = ExtResource("1_h6km6")
+_mesh = NodePath("MeshInstance3D")
+Synchronizer = NodePath("MultiplayerSynchronizer")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=392784539]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
+mesh = SubResource("SphereMesh_esjn7")
+surface_material_override/0 = ExtResource("1_fasne")
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=673164817]
+replication_config = SubResource("SceneReplicationConfig_4hv2t")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1560185009]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
+shape = SubResource("SphereShape3D_esjn7")

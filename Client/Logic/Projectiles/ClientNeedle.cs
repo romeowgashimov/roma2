@@ -1,0 +1,19 @@
+using ROMA2.Client.Logic.Extensions;
+using ROMA2.Shared.Projectiles;
+
+namespace ROMA2.Client.Logic.Projectiles;
+
+public partial class ClientNeedle : Needle
+{
+    public override void Init(ProjectileExtendedFactory projFactory)
+    {
+        base.Init(projFactory);
+
+        Synchronizer.Synchronized += this.OnNetworkTickReceived;
+    }
+
+    public override void Tick(float delta)
+    {
+        this.InterpolateTransform(delta);
+    }
+}

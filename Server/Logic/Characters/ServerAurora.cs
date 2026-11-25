@@ -1,7 +1,7 @@
 using ROMA2.Shared.Characters;
-using ROMA2.Shared.Configurations;
 using ROMA2.Shared.Projectiles;
 using ROMA2.Shared.Data;
+using static ROMA2.Shared.Configurations.ProjectilesConfiguration;
 using ROMA2.Server.Logic.Extensions;
 using ROMA2.Server.Logic.Projectiles;
 using Godot;
@@ -15,6 +15,17 @@ public partial class ServerAurora : Aurora
     private readonly HashSet<Node3D> _hitTargetsThisCut = new();
     [Export] public float MinRequiredDot = 0.5f;
 
+    private readonly int _tumanId;
+    private readonly int _needleId;
+    private ServerTuman _activeTuman;
+    private float _needleInitTime = 0.25f;
+    // Сразу спавнится первая игла
+    private float _needleCurrTime = 0.25f;
+    [Export] public Vector3[] SpawnNeedlePositions = new Vector3[10]; 
+    private int _spawnIndex;
+
+    private List<ServerNeedle> _needles = new();
+
     public override ClientInput Input
     {
         get
@@ -25,9 +36,17 @@ public partial class ServerAurora : Aurora
         {
             if (value.IsPressed) RangedAttack();
             if (value.IsKey1Pressed && !_input.IsKey1Pressed) Rpc(nameof(Razrezi));
+            if (value.IsKey2Pressed && !_input.IsKey2Pressed) Tuman(); 
 
             _input = value;
         }
+    }
+
+    public void AddNeedle(ServerNeedle needle)
+    {
+        _needles.Add(needle);
+
+        // UpdateUlt();
     }
 
     protected override void Razrezi()
@@ -39,11 +58,70 @@ public partial class ServerAurora : Aurora
         _cutCountProgression = CutCount + DEFAULT_CUT_COUNT;
     }
 
-    public override void Init(ProjectileExtendedFactory factory)
+    protected void Tuman()
     {
-        base.Init(factory);
+        if (AnimationState == AnimationState.Cast || CastOrUseAbilityIndex == 2) return;
 
-        _rangedAttackConfigId = ProjectilesConfiguration.GetProjectileId(typeof(ServerAuroraRangedAttack));
+        AnimationState = AnimationState.Cast;
+        CastOrUseAbilityIndex = 2;
+
+        _activeTuman = (ServerTuman)_projFactory.Create(_tumanId);
+        
+        _activeTuman.Start(this);
+
+        _activeTuman.Position = Position;
+    }
+
+    private void HandleTumanProgression(float delta)
+    {
+        if (AnimationState == AnimationState.Cast 
+            && CastOrUseAbilityIndex == 2)
+        {
+            if (!_activeTuman.Initialized)
+            {
+                if (_needleCurrTime < _needleInitTime) 
+                    _needleCurrTime += delta;
+                else
+                {
+                    _needleCurrTime = 0;
+
+                    var needle = (ServerNeedle)_projFactory.Create(_needleId);
+
+                    needle.Rpc(nameof(needle.AddChild), _activeTuman.Reference);
+
+                    needle.Offset = SpawnNeedlePositions[_spawnIndex];
+
+                    needle.Position = needle.Offset + _activeTuman.Position;
+
+                    _spawnIndex++;
+                }
+
+                if (!Input.IsKey2Pressed) 
+                {
+                    _activeTuman.OnDied();
+
+                    _spawnIndex = 0;
+                    
+                    AnimationState = AnimationState.Idle;
+                    CastOrUseAbilityIndex = byte.MinValue;
+                }
+            }
+            else
+            {
+                _spawnIndex = 0;
+                _activeTuman = null;
+
+                AnimationState = AnimationState.Idle;
+                CastOrUseAbilityIndex = byte.MinValue;
+            }
+        }
+    }
+
+    protected ServerAurora()
+    {
+        _rangedAttackConfigId = GetProjectileId(typeof(ServerAuroraRangedAttack));
+        _tumanId = GetProjectileId(typeof(Tuman));
+        _needleId = GetProjectileId(typeof(Needle));
     }
 
     protected override void OnTick(float delta)
@@ -51,6 +129,7 @@ public partial class ServerAurora : Aurora
         CalculateCooldown(delta);
         HandleRangedAttackDelay(delta);
         HandleRazreziProgression(delta);
+        HandleTumanProgression(delta);
         this.Move(delta);
         
         this.SynchronizeTransform();
@@ -74,7 +153,9 @@ public partial class ServerAurora : Aurora
 
     public void RangedAttack()
     {
-        if (_isRangedAttacking || _rangedAttackCurrentTime < _rangedAttackCooldown) return;
+        if (_isRangedAttacking 
+            || _rangedAttackCurrentTime < _rangedAttackCooldown
+            || AnimationState == AnimationState.Cast) return;
 
         _isRangedAttacking = true;
         AnimationState = AnimationState.Attack;

@@ -1,0 +1,29 @@
+[gd_scene format=3 uid="uid://cy5ja2iq00702"]
+
+[ext_resource type="Script" uid="uid://dgp8i5m4nc0fh" path="res://Server/Logic/Projectiles/ServerTuman.cs" id="1_oo6n7"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_esjn7"]
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_fk2lk"]
+properties/0/path = NodePath(".:NetworkPosition")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+properties/1/path = NodePath(".:NetworkQuaternion")
+properties/1/spawn = true
+properties/1/replication_mode = 1
+properties/2/path = NodePath(".:ServerTick")
+properties/2/spawn = true
+properties/2/replication_mode = 1
+
+[node name="Tuman" type="Area3D" unique_id=2127841065 node_paths=PackedStringArray("Synchronizer")]
+collision_layer = 8
+collision_mask = 14
+script = ExtResource("1_oo6n7")
+Synchronizer = NodePath("MultiplayerSynchronizer")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=964883574]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
+shape = SubResource("SphereShape3D_esjn7")
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=138997194]
+replication_config = SubResource("SceneReplicationConfig_fk2lk")

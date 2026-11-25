@@ -42,7 +42,6 @@ public abstract partial class Projectile : Area3D, ITickable, INetworkTransform
     [Export] public float NetworkMaxSpeed { get; set; }
     public float ServerMaxSpeed { get; set; }
 
-
     protected Projectile()
     {
         Identifier = GetProjectileId(this);
