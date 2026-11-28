@@ -24,7 +24,7 @@ public enum DamageType : byte
 {
     Physical,
     Magical,
-    Pure
+    True
 }
 
 public delegate void DamageCalculator(ref Damage damage);

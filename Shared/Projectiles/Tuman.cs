@@ -6,7 +6,7 @@ namespace ROMA2.Shared.Projectiles;
 public abstract partial class Tuman : Projectile
 {
     public float InitTime = 1.5f;
-    public float Lifetime { get; protected set; } = 5f; 
+    [Export] public float Lifetime { get; set; } = 5f; 
     
     protected float _initCurrTime;
 

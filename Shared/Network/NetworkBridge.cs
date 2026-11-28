@@ -19,6 +19,8 @@ public sealed partial class NetworkBridge : Node
     public event Action<int> ProjectileDeleted;
     public event Action<long, long, bool> ViewSharingRequest;
     public event Action<long, long, bool> ViewSharingAccess;
+    public event Action<Dictionary> CharacterRpcReceived;
+    public event Action<Dictionary> EffectRpcReceived;
 
     public override void _Notification(int what)
     {

@@ -1,6 +1,7 @@
 using Godot;
 using Godot.Collections;
 using ROMA2.Client.Logic.Core;
+using ROMA2.Client.Logic.Effects;
 using ROMA2.Client.Logic.Interfaces;
 using ROMA2.Client.Logic.Repositories;
 using ROMA2.Shared.Characters;
@@ -16,7 +17,8 @@ public class ClientPlayableCharFactory(
     CharacterRepository repository, 
     CameraPivotControllerRepository pivotRepository,
     InputHandler inputHandler,
-    ProjectileExtendedFactory projFactory) : PlayableCharacterFactory(config, spawner, repository, projFactory)
+    ProjectileExtendedFactory projFactory,
+    EffectFactory effectFactory) : PlayableCharacterFactory(config, spawner, repository, projFactory)
 {
     protected override Character Spawn(Dictionary data)
     {
@@ -34,6 +36,9 @@ public class ClientPlayableCharFactory(
             if (character.OwnerPeer == GlobalConfiguration.MyPeer)
                 playable.PivotController.Init(inputHandler);
         }
+
+        if (character is IClientEffectable effectable)
+            effectable.EffectFactory = effectFactory;
 
         return character;
     }

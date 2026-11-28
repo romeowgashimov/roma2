@@ -1,4 +1,6 @@
 using Godot;
+using Godot.Collections;
+using ROMA2.Client.Logic.Effects;
 using ROMA2.Client.Logic.Interfaces;
 using ROMA2.Shared.Characters;
 using ROMA2.Shared.Data;
@@ -25,5 +27,26 @@ public static class CharacterExtensions
                     character.PreviousAnimationState = character.AnimationState;
                     break;
             }
+    }
+
+    public static void ClientSyncEffect(this Character character, Dictionary data)
+    {
+        var effect = character.FindEffect(data);
+
+        if (effect == null)
+        {
+            if (character is IClientEffectable effectable)
+            {
+                if (effectable.EffectFactory != null 
+                    && effectable.EffectFactory.TryCreate(data, out effect))
+                {
+                    effectable.TakeEffect(effect);
+
+                    return;
+                }
+            }
+        }
+
+        else effect.Deserialize(data);
     }
 }

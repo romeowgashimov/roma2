@@ -1,27 +1,29 @@
 using Godot;
 using ROMA2.Server.Logic.Characters;
+using ROMA2.Server.Logic.Effects;
 using ROMA2.Server.Logic.Extensions;
 using ROMA2.Shared.Characters;
 using ROMA2.Shared.Data;
 using ROMA2.Shared.Interfaces;
 using ROMA2.Shared.Projectiles;
+using static ROMA2.Shared.Configurations.EffectConfiguration;
 
 namespace ROMA2.Server.Logic.Projectiles;
 
 public partial class ServerNeedle : Needle, IDamageable
 {
-    private int _effectIdentifier; //= EffectFactory.GetEffectIdentifier(this);
+    private int _effectIdentifier = GetEffectIdentifier(nameof(NeedleworkEffect));
 
     public void TakeDamage(Damage damage)
     {
         if (damage.Sender == CharacterOwner 
             && CharacterOwner is ServerAurora aurorar
-            // && aurorar.GetEffect(_effectIdentifier) != null
+            && aurorar.HasEffect(_effectIdentifier)
             && damage.Source == DamageSource.MeleeAttack)
         {
-            aurorar.AddNeedle(this);
+            // aurorar.UpdateRivok()
 
-            Rpc(nameof(Reset));
+            RpcReset();
         }
     }
 

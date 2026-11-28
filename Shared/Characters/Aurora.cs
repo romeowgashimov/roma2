@@ -12,7 +12,7 @@ public abstract partial class Aurora : Character
     // 0.05 для погрешности, иногда получалось 5, иногда 6, а нужно 6
     public float RazreziEndTime => 1.25f;
     protected float _razreziAnimationEndCounter = 0;
-    protected const float RAZREZI_PROGRESSION_TIME = 0.2f; 
+    protected float RAZREZI_PROGRESSION_TIME => 0.8333f / (DEFAULT_CUT_COUNT + CutCount); 
     // Мб, потом для синхронизации, чтобы точь-в-точь урон регался под анимации,
     // а не такой рассинхрон как у меня сейчас
     //protected float _razreziProgressionСumulativeTime;
@@ -53,9 +53,6 @@ public abstract partial class Aurora : Character
 
         CutCount = cutCount;
     }
-
-    [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-    protected abstract void Razrezi();
 
     protected void UpdateRazreziAnimationCooldown(float delta)
     {

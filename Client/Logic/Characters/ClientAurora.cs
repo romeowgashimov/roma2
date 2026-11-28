@@ -1,7 +1,9 @@
 using System;
 using System.Threading.Tasks;
 using Godot;
+using Godot.Collections;
 using ROMA2.Client.Logic.Controllers;
+using ROMA2.Client.Logic.Effects;
 using ROMA2.Client.Logic.Extensions;
 using ROMA2.Client.Logic.Interfaces;
 using ROMA2.Shared.Characters;
@@ -10,13 +12,14 @@ using ROMA2.Shared.Projectiles;
 
 namespace ROMA2.Client.Logic.Characters;
 
-public partial class ClientAurora : Aurora, IClientPlayableCharacter
+public partial class ClientAurora : Aurora, IClientPlayableCharacter, IClientEffectable
 {
     [Export] public Camera3D Camera { get; set; }
     [Export] public CameraPivotController PivotController { get; set; }
     [Export] public AnimationTree AnimationTree { get; set; }
     public override ClientInput Input { get; set; }
     public AnimationNodeStateMachinePlayback AnimationStateMachine { get; set; }
+    public EffectFactory EffectFactory { get; set; }
 
     public override void Init(ProjectileExtendedFactory projFactory)
     {
@@ -25,18 +28,12 @@ public partial class ClientAurora : Aurora, IClientPlayableCharacter
         AnimationStateChanged += this.Animate;
         AnimationStateChanged += AnimateAuroraRangedAttack;
         Synchronizer.Synchronized += this.OnNetworkTickReceived;
+        SyncEffect += this.ClientSyncEffect;
     }
 
     protected override void OnTick(float delta)
     {
         this.InterpolateTransform(delta);
-    }
-
-    protected override void Razrezi()
-    {
-        PreviousAnimationState = AnimationState.Cast;
-
-        AnimationStateMachine.Travel(CutCount.ToString());
     }
 
     private async void AnimateAuroraRangedAttack(AnimationState state)
@@ -47,6 +44,13 @@ public partial class ClientAurora : Aurora, IClientPlayableCharacter
 
             if (HorizontalAttack) AnimationStateMachine.Travel("Attack1");
             else AnimationStateMachine.Travel("Crit");
+        }
+
+        if (state == AnimationState.Cast && CastOrUseAbilityIndex == 1)
+        {
+            PreviousAnimationState = state;
+            
+            AnimationStateMachine.Travel(CutCount.ToString());
         }
 
         // Здесь предыдущее состояние не храним, 

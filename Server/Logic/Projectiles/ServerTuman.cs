@@ -28,10 +28,12 @@ public partial class ServerTuman : Tuman
     {
         base.Tick(delta);
 
+        this.SynchronizeTransform();
+
+        if (!Initialized) return;
+
         _currTime += delta;
         if (_currTime >= Lifetime) OnDied();
-
-        this.SynchronizeTransform();
     }
 
     public void OnDied()
@@ -51,6 +53,8 @@ public partial class ServerTuman : Tuman
         Initialized = false;
         _initCurrTime = 0;
         _currTime = 0f;
+
+        Died = null;
     }
 
     public void OnAreaEntered(Node3D node)

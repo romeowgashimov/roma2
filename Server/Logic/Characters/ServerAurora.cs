@@ -2,10 +2,13 @@ using ROMA2.Shared.Characters;
 using ROMA2.Shared.Projectiles;
 using ROMA2.Shared.Data;
 using static ROMA2.Shared.Configurations.ProjectilesConfiguration;
+using static ROMA2.Shared.Configurations.EffectConfiguration;
 using ROMA2.Server.Logic.Extensions;
 using ROMA2.Server.Logic.Projectiles;
 using Godot;
 using System.Collections.Generic;
+using Godot.Collections;
+using ROMA2.Server.Logic.Effects;
 
 namespace ROMA2.Server.Logic.Characters;
 
@@ -15,6 +18,7 @@ public partial class ServerAurora : Aurora
     private readonly HashSet<Node3D> _hitTargetsThisCut = new();
     [Export] public float MinRequiredDot = 0.5f;
 
+    // По-хорошему вынести все умения в отдельный абстрактный класс умений
     private readonly int _tumanId;
     private readonly int _needleId;
     private ServerTuman _activeTuman;
@@ -24,7 +28,8 @@ public partial class ServerAurora : Aurora
     [Export] public Vector3[] SpawnNeedlePositions = new Vector3[10]; 
     private int _spawnIndex;
 
-    private List<ServerNeedle> _needles = new();
+    private int _effectIdentifier = GetEffectIdentifier(nameof(NeedleworkEffect));
+    public readonly List<ServerNeedle> Needles = new();
 
     public override ClientInput Input
     {
@@ -35,21 +40,33 @@ public partial class ServerAurora : Aurora
         set
         {
             if (value.IsPressed) RangedAttack();
-            if (value.IsKey1Pressed && !_input.IsKey1Pressed) Rpc(nameof(Razrezi));
+            if (value.IsKey1Pressed && !_input.IsKey1Pressed) Razrezi();
             if (value.IsKey2Pressed && !_input.IsKey2Pressed) Tuman(); 
+            if (value.IsKey3Pressed && !_input.IsKey3Pressed) Rivok(); 
 
             _input = value;
         }
     }
 
-    public void AddNeedle(ServerNeedle needle)
+    public override void Init(ProjectileExtendedFactory projFactory)
     {
-        _needles.Add(needle);
+        base.Init(projFactory);
 
-        // UpdateUlt();
+        _effectModifiers.Add(SubscribeEffect);
     }
 
-    protected override void Razrezi()
+    protected void Rivok()
+    {
+        var effect = new NeedleworkEffect(
+            sender: this, 
+            EffectSource.Ability, 
+            sourceIdentifier: 3,
+            duration: 2);
+
+        TakeEffect(effect);
+    }
+
+    protected void Razrezi()
     {
         AnimationState = AnimationState.Cast;
         CastOrUseAbilityIndex = 1;
@@ -65,9 +82,11 @@ public partial class ServerAurora : Aurora
         AnimationState = AnimationState.Cast;
         CastOrUseAbilityIndex = 2;
 
-        _activeTuman = (ServerTuman)_projFactory.Create(_tumanId);
+        _activeTuman = (ServerTuman)ProjectileFactory.Create(_tumanId);
         
         _activeTuman.Start(this);
+
+        _activeTuman.Died += Needles.Clear;
 
         _activeTuman.Position = Position;
     }
@@ -85,13 +104,15 @@ public partial class ServerAurora : Aurora
                 {
                     _needleCurrTime = 0;
 
-                    var needle = (ServerNeedle)_projFactory.Create(_needleId);
+                    var needle = (ServerNeedle)ProjectileFactory.Create(_needleId);
 
                     needle.Rpc(nameof(needle.AddChild), _activeTuman.Reference);
 
                     needle.Offset = SpawnNeedlePositions[_spawnIndex];
 
                     needle.Position = needle.Offset + _activeTuman.Position;
+
+                    Needles.Add(needle);
 
                     _spawnIndex++;
                 }
@@ -164,7 +185,7 @@ public partial class ServerAurora : Aurora
 
     private void ExecuteProjectileCreation()
     {
-        var projectile = _projFactory.Create(_rangedAttackConfigId);
+        var projectile = ProjectileFactory.Create(_rangedAttackConfigId);
 
         WriteRangedAttackOffset(projectile);
 

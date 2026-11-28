@@ -1,5 +1,6 @@
 using Godot;
 using ROMA2.Client.Logic.Characters;
+using ROMA2.Client.Logic.Effects;
 using ROMA2.Client.Logic.Projectiles;
 using ROMA2.Client.Logic.Repositories;
 using ROMA2.Client.Logic.Services;
@@ -37,8 +38,8 @@ public partial class GameWorldEntryPoint : Node
         _playerRepository = playerRepository;
 
         long myPeer = client.Multiplayer.GetUniqueId();
+        
         GlobalConfiguration.MyPeer = myPeer;
-
         PlayableCharacterConfiguration charConfig = new(false);
         ProjectilesConfiguration projConfig = new(false);
 
@@ -50,8 +51,9 @@ public partial class GameWorldEntryPoint : Node
         ClientInputSyncFactory inputSyncFactory = new(_inputRoot, syncRepository, _bridge);
         ClientProjectileFactory projFactory = new(
             projConfig, bridge, _projectileRoot, _projRepo);
+        EffectFactory effectFactory = new(_charRepo);
         ClientPlayableCharFactory charFactory = new(
-            charConfig, _charSpawner, _charRepo, pivotRepository, inputHandler, projFactory);
+            charConfig, _charSpawner, _charRepo, pivotRepository, inputHandler, projFactory, effectFactory);
 
         CharacterSelectionService charSelectService = new(_bridge, _playerRepository);
         _syncService = new(syncRepository, pivotRepository, myPeer);

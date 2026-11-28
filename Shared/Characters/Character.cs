@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using GodotDict = Godot.Collections.Dictionary;
 using Godot;
 using ROMA2.Shared.Data;
 using ROMA2.Shared.Interfaces;
@@ -9,7 +11,6 @@ namespace ROMA2.Shared.Characters;
 
 public abstract partial class Character : CharacterBody3D, INetworkTransform, ITickable, IDamageable, IEffectable
 {
-    protected ProjectileExtendedFactory _projFactory;
     [Export] protected float _rangedAttackCooldown = 0.5f;
     protected float _rangedAttackCurrentTime;
     [Export] protected float _rangedAttackDelay = 0.2f;
@@ -18,7 +19,8 @@ public abstract partial class Character : CharacterBody3D, INetworkTransform, IT
     protected int _rangedAttackConfigId;
     private AnimationState _animationState;
     protected ClientInput _input; 
-    protected List<DamageCalculator> _damageCalculators;
+    protected List<DamageCalculator> _damageCalculators = new();
+    protected List<EffectModifier> _effectModifiers = new();
     private bool _isTicking;
     private readonly List<Effect> _effects = new();
     private readonly List<Effect> _toAdd = new();
@@ -56,7 +58,9 @@ public abstract partial class Character : CharacterBody3D, INetworkTransform, IT
     public List<NetworkState> StateBuffer { get; set; }
     public float VirtualRenderTick { get; set; } = -1;
     [Export] public MultiplayerSynchronizer Synchronizer { get; set; }
+    public ProjectileExtendedFactory ProjectileFactory { get; private set; }
 
+    public event Action<GodotDict> SyncEffect;
     public event Action<AnimationState> AnimationStateChanged;
 
     public int GetCollisions()
@@ -78,7 +82,7 @@ public abstract partial class Character : CharacterBody3D, INetworkTransform, IT
 
     public virtual void Init(ProjectileExtendedFactory projFactory)
     {
-        _projFactory = projFactory;
+        ProjectileFactory = projFactory;
         AnimationState = AnimationState.Idle;
         StateBuffer = new(10);
     }
@@ -93,14 +97,16 @@ public abstract partial class Character : CharacterBody3D, INetworkTransform, IT
             
             effect.Tick(delta);
 
-            if (effect.End || (!effect.Immutable && effect.Removed))
+            if (effect.End)
             {
                 // Быстрое удаление O(1): ставим последний элемент на место удаляемого
                 int lastIndex = _effects.Count - 1;
                 _effects[i] = _effects[lastIndex];
                 _effects.RemoveAt(lastIndex);
 
-                effect.Clear();
+                UnsubscribeEffect(effect);
+
+                effect.Reset();
             }
         }
 
@@ -147,12 +153,96 @@ public abstract partial class Character : CharacterBody3D, INetworkTransform, IT
 
     public void TakeEffect(Effect effect)
     {
+        var effects = GetEffects(effect.Identifier);
+
+        if (effects != null)
+        {
+            foreach (var activeEffect in effects)
+                if (activeEffect.Equals(effect))
+                {
+                    activeEffect.Update();
+                    
+                    return;
+                }
+        }
+
+        foreach (var modifier in _effectModifiers)
+        {
+            modifier(effect);
+
+            if (effect.End)
+                return;
+        }
+
+        effect.Init(this);
+
         if (_isTicking) _toAdd.Add(effect);
         else _effects.Add(effect);
     }
 
-    public Effect GetEffect(int identifier)
+    public IEnumerable<Effect> GetEffects(int identifier)
     {
-        return _effects.Find(x => x.Identifier == identifier);
+        return _effects.FindAll(x => x.Identifier == identifier);
+    }
+
+    public bool HasEffect(int identifier)
+    {
+        return _effects.FirstOrDefault(x => x.Identifier == identifier) != default;
+    }
+
+    // CharacterRpcHandler
+    [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    public virtual void SyncCharacterRpc(GodotDict data)
+    {
+        
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void SyncEffectRpc(GodotDict data)
+    {
+        SyncEffect?.Invoke(data);
+    }
+
+    private void OnSyncEffectRpc(Effect effect)
+    {
+        Rpc(nameof(SyncEffectRpc), effect.Serialize());
+    }
+
+    public Effect FindEffect(GodotDict data)
+    {
+        var (effectId, senderId, source, sourceId) = Effect.DefaultDeserialize(data);
+
+        if (HasEffect(effectId))
+        {
+            var effects = GetEffects(effectId);
+
+            if (effects != null) 
+            {
+                foreach (var effect in effects)
+                {
+                    if (effect.Equals(effectId, senderId, source, sourceId))
+                        return effect;
+                    
+                }
+            }
+
+            return null;
+        }
+
+        return null;
+    }
+
+    protected void SubscribeEffect(Effect effect)
+    {
+        effect.Added += OnSyncEffectRpc;
+        effect.Updated += OnSyncEffectRpc;
+        effect.Ended += OnSyncEffectRpc;
+    }
+
+    protected void UnsubscribeEffect(Effect effect)
+    {
+        effect.Added -= OnSyncEffectRpc;
+        effect.Updated -= OnSyncEffectRpc;
+        effect.Ended -= OnSyncEffectRpc;
     }
 }
